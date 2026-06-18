@@ -1606,3 +1606,64 @@ dd a:hover { text-decoration: underline; }
 @media(max-width:560px){
   .dash-stats { grid-template-columns:1fr; }
 }
+
+/* ── Bank selection grid ──────────────────────────────────── */
+.bank-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-top: .5rem;
+}
+
+.bank-card-form { margin: 0; }
+
+.bank-card {
+  --bank-color: #1a3c6e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  width: 100%;
+  padding: 1.25rem .75rem;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  cursor: pointer;
+  transition: border-color .2s, box-shadow .2s, transform .15s;
+  font-family: inherit;
+  text-align: center;
+}
+
+.bank-card:hover {
+  border-color: var(--bank-color);
+  box-shadow: 0 4px 16px rgba(0,0,0,.12);
+  transform: translateY(-2px);
+}
+
+.bank-card:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+}
+
+.bank-card-abbr {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--bank-color);
+  color: #fff;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+
+.bank-card-name {
+  font-size: .78rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+}

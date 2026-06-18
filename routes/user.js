@@ -142,4 +142,45 @@ router.get('/dashboard', requireUser, async (req, res) => {
   });
 });
 
+// ── Bank selection (approved loans) ──────────────────────────
+const ALLOWED_BANKS = [
+  'HSBC',
+  'Standard Chartered',
+  'Qatari National Bank (QNB)',
+  'First Abu Dhabi Bank (FAB)',
+  'Saudi National Bank (SNB)',
+  'Kuwait Finance House (KFH)',
+  'Bank Muscat',
+  'National Bank of Bahrain (NBB)',
+];
+
+router.post('/loans/:id/select-bank', requireUser, async (req, res) => {
+  const loanId = parseInt(req.params.id, 10);
+  const { bank } = req.body;
+
+  if (!ALLOWED_BANKS.includes(bank)) {
+    req.flash('error', 'Invalid bank selection.');
+    return res.redirect('/user/dashboard');
+  }
+
+  // Verify this loan belongs to the logged-in user and is approved
+  const loan = await one(
+    'SELECT id, status, selected_bank FROM loans WHERE id = $1 AND user_id = $2',
+    [loanId, req.session.userId]
+  );
+
+  if (!loan) {
+    req.flash('error', 'Loan not found.');
+    return res.redirect('/user/dashboard');
+  }
+  if (loan.status !== 'approved') {
+    req.flash('error', 'Bank can only be selected for approved loans.');
+    return res.redirect('/user/dashboard');
+  }
+
+  await run('UPDATE loans SET selected_bank = $1 WHERE id = $2', [bank, loanId]);
+  req.flash('success', `Bank selected: ${bank}. Our team will process your disbursement shortly.`);
+  res.redirect('/user/dashboard');
+});
+
 module.exports = router;

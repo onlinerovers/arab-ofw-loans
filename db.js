@@ -251,8 +251,19 @@ async function seedWaitlist() {
   console.log(`[db] Seeded ${inserted} dummy waitlist applicants.`);
 }
 
+async function migrateSchema() {
+  // Add columns that didn't exist in the original schema
+  const migrations = [
+    'ALTER TABLE loans ADD COLUMN IF NOT EXISTS selected_bank TEXT',
+  ];
+  for (const sql of migrations) {
+    await pool.query(sql);
+  }
+}
+
 async function init() {
   await initSchema();
+  await migrateSchema();
   await seedAdmin();
   await seedSettings();
   await seedWaitlist();

@@ -163,8 +163,25 @@
               <!-- Status message -->
               <% if (loan.status === 'pending') { %>
                 <div class="dash-loan-msg dash-msg--pending">⏳ Under review — we'll update you shortly.</div>
-              <% } else if (loan.status === 'approved') { %>
-                <div class="dash-loan-msg dash-msg--approved">✅ Approved! Funds are being prepared.</div>
+              <% } else if (loan.status === 'approved' && !loan.selected_bank) { %>
+                <div class="dash-loan-msg dash-msg--approved" style="margin-bottom:1rem;">✅ Approved! Please select a bank to receive your funds.</div>
+                <div class="bank-grid">
+                  <% const banks = ['HSBC','Standard Chartered','Qatari National Bank (QNB)','First Abu Dhabi Bank (FAB)','Saudi National Bank (SNB)','Kuwait Finance House (KFH)','Bank Muscat','National Bank of Bahrain (NBB)']; %>
+                  <% const bankColors = {'HSBC':'#db0011','Standard Chartered':'#0a6a35','Qatari National Bank (QNB)':'#8b1a2f','First Abu Dhabi Bank (FAB)':'#b8860b','Saudi National Bank (SNB)':'#00563f','Kuwait Finance House (KFH)':'#006400','Bank Muscat':'#cc0000','National Bank of Bahrain (NBB)':'#003366'}; %>
+                  <% const bankAbbr = {'HSBC':'HSBC','Standard Chartered':'SC','Qatari National Bank (QNB)':'QNB','First Abu Dhabi Bank (FAB)':'FAB','Saudi National Bank (SNB)':'SNB','Kuwait Finance House (KFH)':'KFH','Bank Muscat':'BM','National Bank of Bahrain (NBB)':'NBB'}; %>
+                  <% banks.forEach(function(bank) { %>
+                    <form action="/user/loans/<%= loan.id %>/select-bank" method="POST" class="bank-card-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                      <input type="hidden" name="bank" value="<%= bank %>">
+                      <button type="submit" class="bank-card" style="--bank-color:<%= bankColors[bank] %>">
+                        <span class="bank-card-abbr"><%= bankAbbr[bank] %></span>
+                        <span class="bank-card-name"><%= bank %></span>
+                      </button>
+                    </form>
+                  <% }) %>
+                </div>
+              <% } else if (loan.status === 'approved' && loan.selected_bank) { %>
+                <div class="dash-loan-msg dash-msg--approved">✅ Approved — funds will be sent to <strong><%= loan.selected_bank %></strong>. Our team is processing your disbursement.</div>
               <% } else if (loan.status === 'collected') { %>
                 <div class="dash-loan-msg dash-msg--funded">🎉 Funded! Check your wallet balance above.</div>
               <% } else if (loan.status === 'rejected') { %>
