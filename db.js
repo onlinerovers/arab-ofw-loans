@@ -200,7 +200,7 @@ async function seedSettings() {
 
 async function seedWaitlist() {
   const row = await one('SELECT COUNT(*)::int AS cnt FROM loans');
-  if (row.cnt > 0) return; // already seeded
+  if (row.cnt >= 50) return; // already seeded
 
   const COUNTRIES = [
     { name: 'Kuwait',       currency: 'KWD', nationalities: ['Kuwaiti','Egyptian','Indian','Filipino'] },
