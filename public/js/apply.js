@@ -230,7 +230,10 @@
     var fnEl  = zone.querySelector('.upload-filename');
     if (!input) return;
 
-    zone.addEventListener('click', function () { input.click(); });
+    zone.addEventListener('click', function (e) {
+      if (e.target === input) return; // already clicking the input — don't double-trigger
+      input.click();
+    });
 
     zone.addEventListener('dragover', function (e) { e.preventDefault(); zone.classList.add('drag-over'); });
     zone.addEventListener('dragleave', function ()  { zone.classList.remove('drag-over'); });
