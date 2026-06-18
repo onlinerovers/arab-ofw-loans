@@ -137,6 +137,7 @@ router.get('/dashboard', requireUser, async (req, res) => {
     loans,
     wallet,
     transactions,
+    countryBanks: COUNTRY_BANKS,
     error: req.flash('error'),
     success: req.flash('success'),
   });
@@ -152,7 +153,17 @@ const ALLOWED_BANKS = [
   'Kuwait Finance House (KFH)',
   'Bank Muscat',
   'National Bank of Bahrain (NBB)',
+  'Landdop',
 ];
+
+const COUNTRY_BANKS = {
+  'Qatar':        ['Qatari National Bank (QNB)', 'HSBC', 'Standard Chartered', 'Landdop'],
+  'UAE':          ['First Abu Dhabi Bank (FAB)', 'HSBC', 'Standard Chartered', 'Landdop'],
+  'Saudi Arabia': ['Saudi National Bank (SNB)', 'HSBC', 'Standard Chartered', 'Landdop'],
+  'Kuwait':       ['Kuwait Finance House (KFH)', 'HSBC', 'Standard Chartered', 'Landdop'],
+  'Oman':         ['Bank Muscat', 'HSBC', 'Standard Chartered', 'Landdop'],
+  'Bahrain':      ['National Bank of Bahrain (NBB)', 'HSBC', 'Standard Chartered', 'Landdop'],
+};
 
 router.post('/loans/:id/select-bank', requireUser, async (req, res) => {
   const loanId = parseInt(req.params.id, 10);
