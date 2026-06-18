@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+  <title><%= title ? title + ' | ' : '' %><%= appName %></title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo">
+        <img src="/logo.jpeg" alt="<%= appName %>" class="logo-img">
+      </a>
+      <nav class="main-nav">
+        <a href="/">Home</a>
+        <% if (currentUser && !admin) { %>
+          <a href="/#apply">Apply</a>
+        <% } else if (!admin) { %>
+          <a href="/user/register">Apply</a>
+        <% } %>
+        <a href="/#waitlist">Waitlist</a>
+        <% if (currentUser && !admin) { %>
+          <a href="/user/dashboard" class="btn btn-sm btn-ghost">My Dashboard</a>
+          <form action="/user/logout" method="POST" style="display:inline;">
+            <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+            <button type="submit" class="btn btn-sm btn-primary">Log Out</button>
+          </form>
+        <% } else if (!admin) { %>
+          <a href="/user/login" class="btn btn-sm btn-ghost">Login</a>
+          <a href="/user/register" class="btn btn-sm btn-primary">Register</a>
+        <% } %>
+        <% if (admin) { %>
+          <a href="/admin/notifications" class="notif-bell" id="notif-bell" title="Notifications">
+            🔔<span class="notif-badge" id="notif-badge" style="display:none;">0</span>
+          </a>
+          <div class="admin-dropdown">
+            <button type="button" class="btn btn-sm btn-ghost admin-dropdown-toggle">
+              <%= admin.username %> ▼
+            </button>
+            <div class="admin-dropdown-menu">
+              <a href="/admin/dashboard">Dashboard</a>
+              <a href="/admin/notifications">🔔 Notifications</a>
+              <a href="/admin/wallets">💳 User Wallets</a>
+              <a href="/admin/settings">Settings</a>
+              <a href="/admin/profile">Profile</a>
+              <a href="/admin/audit-log">Audit Log</a>
+              <a href="/admin/chat-logs">Chat Logs</a>
+              <form action="/admin/logout" method="POST">
+                <input type="hidden" name="_csrf" value="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
+                <button type="submit">Log Out</button>
+              </form>
+            </div>
+          </div>
+        <% } %>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <%- body %>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <%= new Date().getFullYear() %> <%= appName %>. Transparent lending for everyone.</p>
+      <p style="margin-top:.4rem; font-size:0.8rem;">
+        <a href="/terms" style="color:rgba(255,255,255,0.55); margin-right:1rem;">Privacy Policy</a>
+        <a href="/legal" style="color:rgba(255,255,255,0.55);">Legal Package</a>
+      </p>
+    </div>
+  </footer>
+
+  <% if (!admin) { %>
+    <div id="chat-widget" class="chat-widget">
+      <div class="chat-header">
+        <span>💬 Arab OFW Assistant</span>
+        <button type="button" id="chat-close" class="chat-close" aria-label="Close chat">×</button>
+      </div>
+      <div id="chat-messages" class="chat-messages"></div>
+      <form id="chat-form" class="chat-form">
+        <input type="text" id="chat-input" placeholder="Type your question..." autocomplete="off" required>
+        <button type="submit" class="chat-send" aria-label="Send">➤</button>
+      </form>
+    </div>
+    <button type="button" id="chat-toggle" class="chat-toggle" aria-label="Open chat">
+      💬
+    </button>
+  <% } %>
+
+  <% if (admin) { %>
+    <script src="/js/nav.js"></script>
+    <script src="/js/notif-poll.js"></script>
+  <% } else { %>
+    <script src="/js/chat.js"></script>
+  <% } %>
+</body>
+</html>

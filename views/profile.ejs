@@ -1,0 +1,45 @@
+<section class="dashboard-header">
+  <div class="container">
+    <div class="dashboard-header-inner">
+      <div>
+        <h1>Admin Profile</h1>
+        <p>Logged in as <strong><%= admin.username %></strong>.</p>
+      </div>
+      <a href="/admin/dashboard" class="btn btn-ghost">← Back to dashboard</a>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-content">
+  <div class="container">
+    <% if (success && success.length) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <form action="/admin/profile/change-password" method="POST" class="apply-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <h2>Change Password</h2>
+
+      <div class="form-group">
+        <label for="current_password">Current Password</label>
+        <input type="password" id="current_password" name="current_password" required>
+      </div>
+
+      <div class="form-group">
+        <label for="new_password">New Password</label>
+        <input type="password" id="new_password" name="new_password" minlength="8" required>
+        <small class="form-hint">Must be at least 8 characters.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="confirm_password">Confirm New Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Change Password</button>
+    </form>
+  </div>
+</section>

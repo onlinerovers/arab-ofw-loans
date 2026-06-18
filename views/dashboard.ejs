@@ -1,0 +1,130 @@
+<section class="dashboard-header">
+  <div class="container">
+    <div class="dashboard-header-inner">
+      <div>
+        <h1>Admin Dashboard</h1>
+        <p>Welcome back, <strong><%= admin.username %></strong>.</p>
+      </div>
+      <a href="/admin/export/csv?status=<%= status %>" class="btn btn-secondary">Export CSV</a>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-content">
+  <div class="container">
+    <% if (success && success.length) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <div class="stats-grid dashboard-stats">
+      <div class="stat-card">
+        <span class="stat-number"><%= stats.total || 0 %></span>
+        <span class="stat-label">Total Applications</span>
+      </div>
+      <div class="stat-card stat-pending">
+        <span class="stat-number"><%= stats.pending || 0 %></span>
+        <span class="stat-label">Pending</span>
+      </div>
+      <div class="stat-card stat-approved">
+        <span class="stat-number"><%= stats.approved || 0 %></span>
+        <span class="stat-label">Approved</span>
+      </div>
+      <div class="stat-card stat-collected">
+        <span class="stat-number"><%= stats.collected || 0 %></span>
+        <span class="stat-label">Collected</span>
+      </div>
+      <div class="stat-card stat-rejected">
+        <span class="stat-number"><%= stats.rejected || 0 %></span>
+        <span class="stat-label">Rejected</span>
+      </div>
+    </div>
+
+    <div class="dashboard-toolbar">
+      <div class="filter-bar">
+        <span>Filter:</span>
+        <div class="filter-links">
+          <a href="/admin/dashboard?status=all&search=<%= encodeURIComponent(search) %>" class="<%= status === 'all' ? 'active' : '' %>">All</a>
+          <a href="/admin/dashboard?status=pending&search=<%= encodeURIComponent(search) %>" class="<%= status === 'pending' ? 'active' : '' %>">Pending</a>
+          <a href="/admin/dashboard?status=approved&search=<%= encodeURIComponent(search) %>" class="<%= status === 'approved' ? 'active' : '' %>">Approved</a>
+          <a href="/admin/dashboard?status=collected&search=<%= encodeURIComponent(search) %>" class="<%= status === 'collected' ? 'active' : '' %>">Collected</a>
+          <a href="/admin/dashboard?status=rejected&search=<%= encodeURIComponent(search) %>" class="<%= status === 'rejected' ? 'active' : '' %>">Rejected</a>
+        </div>
+      </div>
+
+      <form action="/admin/dashboard" method="GET" class="search-form">
+        <input type="hidden" name="status" value="<%= status %>">
+        <input type="text" name="search" value="<%= search %>" placeholder="Search name, email, phone, ref...">
+        <button type="submit" class="btn btn-sm btn-secondary">Search</button>
+        <% if (search) { %>
+          <a href="/admin/dashboard?status=<%= status %>" class="btn btn-sm btn-ghost">Clear</a>
+        <% } %>
+      </form>
+    </div>
+
+    <p class="results-meta"><%= totalItems %> application<%= totalItems === 1 ? '' : 's' %> found</p>
+
+    <div class="table-wrap">
+      <table class="data-table dashboard-table">
+        <thead>
+          <tr>
+            <th>Reference</th>
+            <th>Applicant</th>
+            <th>Amount</th>
+            <th>Term</th>
+            <th>Purpose</th>
+            <th>Status</th>
+            <th>Applied</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (loans && loans.length) { %>
+            <% loans.forEach(function(loan) { %>
+              <tr class="summary-row">
+                <td><a href="/admin/loans/<%= loan.id %>"><%= loan.reference_number %></a></td>
+                <td>
+                  <strong><%= loan.full_name %></strong><br>
+                  <small class="text-muted"><%= loan.email %></small>
+                </td>
+                <td><%= Number(loan.amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) %></td>
+                <td><%= loan.loan_term_months ? loan.loan_term_months + ' mo' : '—' %></td>
+                <td>
+                  <% const purposeLabels = {
+                    business: 'Business', education: 'Education', medical: 'Medical', home: 'Home', vehicle: 'Vehicle', debt: 'Debt', personal: 'Personal', other: 'Other'
+                  }; %>
+                  <%= purposeLabels[loan.purpose] || (loan.purpose ? loan.purpose.charAt(0).toUpperCase() + loan.purpose.slice(1) : '—') %>
+                </td>
+                <td>
+                  <span class="status-badge status-<%= loan.status %>">
+                    <%= loan.status.charAt(0).toUpperCase() + loan.status.slice(1) %>
+                  </span>
+                </td>
+                <td><%= new Date(loan.applied_at).toLocaleDateString() %></td>
+                <td class="actions-col">
+                  <div class="action-group">
+                    <a href="/admin/loans/<%= loan.id %>" class="btn btn-sm btn-secondary">Open</a>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="8" class="empty-row">No loan applications found for the selected filter.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (totalPages > 1) { %>
+      <div class="pagination">
+        <% for (let p = 1; p <= totalPages; p++) { %>
+          <a href="/admin/dashboard?status=<%= status %>&search=<%= encodeURIComponent(search) %>&page=<%= p %>" class="<%= currentPage === p ? 'active' : '' %>"><%= p %></a>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+</section>

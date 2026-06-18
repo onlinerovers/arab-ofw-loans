@@ -1,0 +1,65 @@
+<section class="dashboard-header">
+  <div class="container">
+    <div class="dashboard-header-inner">
+      <h1>User Wallets</h1>
+      <a href="/admin/dashboard" class="btn btn-ghost">← Dashboard</a>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-content">
+  <div class="container">
+
+    <% if (success && success.length) { %><div class="alert alert-success"><%= success %></div><% } %>
+    <% if (error && error.length) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+    <% if (!users || !users.length) { %>
+      <p class="empty-row">No registered users yet.</p>
+    <% } else { %>
+      <div class="wallet-admin-list">
+        <% users.forEach(function(u) { %>
+          <div class="wallet-admin-card">
+            <div class="wac-info">
+              <div class="wac-name"><%= u.full_name %></div>
+              <div class="wac-email"><%= u.email %></div>
+              <div class="wac-meta">
+                <%= u.loan_count %> loan<%= u.loan_count !== 1 ? 's' : '' %> &nbsp;·&nbsp;
+                Member since <%= new Date(u.created_at).toLocaleDateString('en-US',{month:'short',year:'numeric'}) %>
+              </div>
+            </div>
+
+            <div class="wac-balance">
+              <span class="wac-balance-label">Balance</span>
+              <span class="wac-balance-amount">
+                <% if (u.wallet_id) { %>
+                  <%= Number(u.balance).toLocaleString('en-US',{minimumFractionDigits:2}) %> <span class="wac-currency"><%= u.currency %></span>
+                <% } else { %>
+                  <span style="color:var(--color-muted);font-size:.9rem;">No wallet</span>
+                <% } %>
+              </span>
+            </div>
+
+            <div class="wac-topup">
+              <form action="/admin/wallets/<%= u.id %>/topup" method="POST" class="topup-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                <input type="number" name="amount" placeholder="Amount" min="0.01" step="0.01" required class="topup-input">
+                <select name="currency" class="topup-select">
+                  <option value="KWD">KWD</option>
+                  <option value="AED">AED</option>
+                  <option value="SAR">SAR</option>
+                  <option value="QAR">QAR</option>
+                  <option value="BHD">BHD</option>
+                  <option value="OMR">OMR</option>
+                  <option value="USD">USD</option>
+                </select>
+                <input type="text" name="description" placeholder="Note (optional)" class="topup-desc">
+                <button type="submit" class="btn btn-primary btn-sm">Top Up</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+  </div>
+</section>

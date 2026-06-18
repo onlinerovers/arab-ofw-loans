@@ -1,0 +1,47 @@
+<section class="auth-section">
+  <div class="container">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <img src="/logo.jpeg" alt="Arab OFW Loans & Partners" style="height:64px;">
+      </div>
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Register to track your application and wallet</p>
+
+      <% if (error && error.length) { %>
+        <% (Array.isArray(error) ? error : [error]).forEach(function(e){ %>
+          <div class="alert alert-error"><%= e %></div>
+        <% }) %>
+      <% } %>
+
+      <form action="/user/register" method="POST" class="auth-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="field">
+          <label for="full_name">Full Name</label>
+          <input type="text" id="full_name" name="full_name" value="<%= formData.full_name || '' %>" required placeholder="As it appears on your ID">
+        </div>
+
+        <div class="field">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" value="<%= formData.email || '' %>" required placeholder="your@email.com">
+          <span class="field-hint">Use the same email you applied with to link your applications</span>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="At least 6 characters" minlength="6">
+        </div>
+
+        <div class="field">
+          <label for="password_confirm">Confirm Password</label>
+          <input type="password" id="password_confirm" name="password_confirm" required placeholder="Repeat your password">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+      </form>
+
+      <p class="auth-switch">Already have an account? <a href="/user/login">Log in</a></p>
+      <p class="auth-switch" style="margin-top:.5rem;"><a href="/">← Back to Home</a></p>
+    </div>
+  </div>
+</section>

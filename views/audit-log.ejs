@@ -1,0 +1,57 @@
+<section class="dashboard-header">
+  <div class="container">
+    <div class="dashboard-header-inner">
+      <div>
+        <h1>Audit Log</h1>
+        <p>Recent admin actions.</p>
+      </div>
+      <a href="/admin/dashboard" class="btn btn-ghost">← Back to dashboard</a>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-content">
+  <div class="container">
+    <div class="table-wrap">
+      <table class="data-table audit-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Admin</th>
+            <th>Action</th>
+            <th>Entity</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (logs && logs.length) { %>
+            <% logs.forEach(function(log) { %>
+              <tr>
+                <td><%= new Date(log.created_at).toLocaleString() %></td>
+                <td><%= log.admin_username || 'System' %></td>
+                <td><%= log.action %></td>
+                <td><%= log.entity_type || '—' %><%= log.entity_id ? ' #' + log.entity_id : '' %></td>
+                <td>
+                  <% if (log.details) { %>
+                    <% try { %>
+                      <% const details = JSON.parse(log.details); %>
+                      <code class="audit-details"><%= JSON.stringify(details, null, 2) %></code>
+                    <% } catch (e) { %>
+                      <%= log.details %>
+                    <% } %>
+                  <% } else { %>
+                    —
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="5" class="empty-row">No audit log entries yet.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

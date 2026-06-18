@@ -1,0 +1,10 @@
+node_modules/
+.env
+data/
+public/uploads/
+*.log
+*.err
+*.db
+*.sqlite
+.DS_Store
+.claude/

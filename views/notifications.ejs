@@ -1,0 +1,35 @@
+<section class="admin-section">
+  <div class="container">
+    <div class="admin-page-header">
+      <h1>Notifications</h1>
+      <% if (notifications.some(n => !n.read_at)) { %>
+        <form action="/admin/notifications/mark-all-read" method="POST" style="display:inline;">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-secondary btn-sm">Mark all as read</button>
+        </form>
+      <% } %>
+    </div>
+
+    <% if (notifications.length === 0) { %>
+      <div class="empty-state">
+        <p>🔔 No notifications yet.</p>
+      </div>
+    <% } else { %>
+      <div class="notif-list">
+        <% notifications.forEach(function(n) { %>
+          <div class="notif-item <%= n.read_at ? 'notif-read' : 'notif-unread' %>">
+            <span class="notif-dot"></span>
+            <div class="notif-content">
+              <div class="notif-title"><%= n.title %></div>
+              <% if (n.body) { %><div class="notif-body"><%= n.body %></div><% } %>
+              <div class="notif-meta"><%= new Date(n.created_at).toLocaleString() %></div>
+            </div>
+            <% if (n.link) { %>
+              <a href="<%= n.link %>" class="btn btn-sm btn-ghost notif-action">View →</a>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>

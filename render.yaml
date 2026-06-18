@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: arab-ofw-loans
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: arab-ofw-db
+          property: connectionString
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: APP_NAME
+        value: Arab OFW Loans & Partners
+
+databases:
+  - name: arab-ofw-db
+    databaseName: arabofw
+    user: arabofw
+    plan: free

@@ -1,0 +1,39 @@
+<section class="auth-section">
+  <div class="container">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <img src="/logo.jpeg" alt="Arab OFW Loans & Partners" style="height:64px;">
+      </div>
+      <h1 class="auth-title">Applicant Login</h1>
+      <p class="auth-subtitle">Track your loan application and wallet</p>
+
+      <% if (error && error.length) { %>
+        <% (Array.isArray(error) ? error : [error]).forEach(function(e){ %>
+          <div class="alert alert-error"><%= e %></div>
+        <% }) %>
+      <% } %>
+      <% if (success && success.length) { %>
+        <div class="alert alert-success"><%= Array.isArray(success) ? success[0] : success %></div>
+      <% } %>
+
+      <form action="/user/login" method="POST" class="auth-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+        <div class="field">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" value="<%= formData.email || '' %>" required autocomplete="email" placeholder="your@email.com">
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Log In</button>
+      </form>
+
+      <p class="auth-switch">Don't have an account? <a href="/user/register">Create one</a></p>
+      <p class="auth-switch" style="margin-top:.5rem;"><a href="/">← Back to Home</a></p>
+    </div>
+  </div>
+</section>

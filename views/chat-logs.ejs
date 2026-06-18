@@ -1,0 +1,50 @@
+<section class="dashboard-header">
+  <div class="container">
+    <div class="dashboard-header-inner">
+      <div>
+        <h1>Chat Logs</h1>
+        <p>Recent visitor conversations with the chatbot.</p>
+      </div>
+      <a href="/admin/dashboard" class="btn btn-ghost">← Back to dashboard</a>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-content">
+  <div class="container">
+    <div class="table-wrap">
+      <table class="data-table chat-logs-table">
+        <thead>
+          <tr>
+            <th>Session ID</th>
+            <th>User</th>
+            <th>Email</th>
+            <th>Messages</th>
+            <th>Started</th>
+            <th>Last Activity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (sessions && sessions.length) { %>
+            <% sessions.forEach(function(session) { %>
+              <tr>
+                <td><code><%= session.session_id.slice(0, 16) %>...</code></td>
+                <td><%= session.user_name || 'Anonymous' %></td>
+                <td><%= session.user_email || '—' %></td>
+                <td><%= session.message_count || 0 %></td>
+                <td><%= new Date(session.created_at).toLocaleString() %></td>
+                <td><%= new Date(session.updated_at).toLocaleString() %></td>
+                <td><a href="/admin/chat-logs/<%= session.session_id %>" class="btn btn-sm btn-secondary">View</a></td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="7" class="empty-row">No chat sessions yet.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

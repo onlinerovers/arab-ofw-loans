@@ -1,0 +1,10 @@
+<section class="auth-section">
+  <div class="container">
+    <div class="auth-card" style="text-align: center;">
+      <div style="font-size: 4rem; margin-bottom: 1rem;"><%= statusCode === 404 ? '🔍' : '⚠️' %></div>
+      <h1><%= statusCode === 404 ? 'Page Not Found' : 'Something Went Wrong' %></h1>
+      <p class="auth-subtitle"><%= message %></p>
+      <a href="/" class="btn btn-primary">Go Home</a>
+    </div>
+  </div>
+</section>

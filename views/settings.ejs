@@ -1,0 +1,55 @@
+<section class="dashboard-header">
+  <div class="container">
+    <div class="dashboard-header-inner">
+      <div>
+        <h1>Settings</h1>
+        <p>Manage app-wide configuration.</p>
+      </div>
+      <a href="/admin/dashboard" class="btn btn-ghost">← Back to dashboard</a>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-content">
+  <div class="container">
+    <% if (success && success.length) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <form action="/admin/settings" method="POST" class="apply-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div class="form-group">
+        <label for="app_name">App Name</label>
+        <input type="text" id="app_name" name="app_name" value="<%= settings.app_name %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="support_email">Support Email</label>
+        <input type="email" id="support_email" name="support_email" value="<%= settings.support_email %>">
+      </div>
+
+      <div class="form-group">
+        <label for="email_sender_name">Email Sender Name</label>
+        <input type="text" id="email_sender_name" name="email_sender_name" value="<%= settings.email_sender_name %>" required>
+      </div>
+
+      <div class="form-group">
+        <label for="company_address">Company Address</label>
+        <textarea id="company_address" name="company_address" rows="3"><%= settings.company_address %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="interest_rate">Annual Interest Rate (%)</label>
+        <input type="number" id="interest_rate" name="interest_rate" min="0" max="100" step="0.01"
+               value="<%= settings.interest_rate || '0' %>" placeholder="e.g. 12 for 12% per year">
+        <small class="form-hint">Used to calculate the monthly repayment schedule shown to applicants before they submit.</small>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save Settings</button>
+    </form>
+  </div>
+</section>

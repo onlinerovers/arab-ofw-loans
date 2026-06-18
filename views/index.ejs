@@ -1,0 +1,511 @@
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">🌍 Serving OFWs across the Gulf Region</div>
+      <h1>Loans Made Simple<br>for OFWs Abroad</h1>
+      <p class="hero-subtitle">
+        Arab OFW Loans &amp; Partners connects Overseas Foreign Workers with trusted lenders in Kuwait, UAE, Saudi Arabia, Qatar, Bahrain &amp; Oman.
+      </p>
+      <div class="hero-actions">
+        <% if (currentUser) { %>
+          <a href="#apply" class="btn btn-primary btn-hero">Apply Now — It's Free</a>
+        <% } else { %>
+          <a href="/user/register" class="btn btn-primary btn-hero">Apply Now — It's Free</a>
+        <% } %>
+        <a href="#waitlist" class="btn btn-hero-ghost">View Waitlist</a>
+      </div>
+      <p class="hero-disclaimer">We are a referral &amp; processing service — not a lender. No fees charged upfront.</p>
+    </div>
+    <div class="hero-trust">
+      <div class="trust-item"><span class="trust-icon">🔒</span><span>Secure &amp; Confidential</span></div>
+      <div class="trust-item"><span class="trust-icon">⚡</span><span>Fast Review</span></div>
+      <div class="trust-item"><span class="trust-icon">🤝</span><span>Trusted Partners</span></div>
+      <div class="trust-item"><span class="trust-icon">📋</span><span>Transparent Process</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Apply Section ── -->
+<section id="apply" class="apply-section">
+  <div class="container">
+
+    <% if (success && success.length) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <% if (!currentUser) { %>
+      <div class="apply-gate">
+        <div class="apply-gate-icon">🔐</div>
+        <h2 class="apply-gate-title">Create an account to apply</h2>
+        <p class="apply-gate-text">You need a free account to submit a loan application and track your status from your personal dashboard.</p>
+        <div class="apply-gate-actions">
+          <a href="/user/register" class="btn btn-primary btn-hero">Register — It's Free</a>
+          <a href="/user/login" class="btn btn-hero-ghost">I already have an account</a>
+        </div>
+      </div>
+    <% } else { %>
+
+    <div class="apply-layout">
+
+      <!-- Left: Form -->
+      <div class="apply-form-col">
+
+        <!-- Step Progress -->
+        <div class="step-progress" id="step-progress">
+          <div class="step-item active" data-step="1">
+            <div class="step-circle">1</div>
+            <div class="step-label">Personal</div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" data-step="2">
+            <div class="step-circle">2</div>
+            <div class="step-label">Employment</div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" data-step="3">
+            <div class="step-circle">3</div>
+            <div class="step-label">Loan Details</div>
+          </div>
+          <div class="step-connector"></div>
+          <div class="step-item" data-step="4">
+            <div class="step-circle">4</div>
+            <div class="step-label">Documents</div>
+          </div>
+        </div>
+
+        <form action="/apply" method="POST" enctype="multipart/form-data" class="apply-form" id="apply-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+          <!-- ── Step 1: Personal ── -->
+          <div class="form-step" data-step="1">
+            <div class="step-header">
+              <div class="step-header-icon">👤</div>
+              <div>
+                <h3>Personal Information</h3>
+                <p>Your details as they appear on your official ID</p>
+              </div>
+            </div>
+
+            <div class="field-card">
+              <div class="form-group">
+                <label for="full_name">Full Name <span class="req">*</span></label>
+                <input type="text" id="full_name" name="full_name" value="<%= locals.formData?.full_name || '' %>" required placeholder="As it appears on your official ID">
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="date_of_birth">Date of Birth <span class="req">*</span></label>
+                  <input type="date" id="date_of_birth" name="date_of_birth" value="<%= locals.formData?.date_of_birth || '' %>" required>
+                </div>
+                <div class="form-group">
+                  <label for="nationality">Nationality <span class="req">*</span></label>
+                  <input type="text" id="nationality" name="nationality" value="<%= locals.formData?.nationality || '' %>" required placeholder="e.g. Filipino, Indian">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="email">Email Address <span class="req">*</span></label>
+                  <input type="email" id="email" name="email" value="<%= locals.formData?.email || '' %>" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                  <label for="phone">Phone Number <span class="req">*</span></label>
+                  <input type="tel" id="phone" name="phone" value="<%= locals.formData?.phone || '' %>" required placeholder="+971 50 000 0000">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="address">Home Address</label>
+                <input type="text" id="address" name="address" value="<%= locals.formData?.address || '' %>" placeholder="Street, city, state / region">
+              </div>
+
+              <div class="form-group">
+                <label for="country">Country of Residence <span class="req">*</span></label>
+                <div class="select-wrap">
+                  <select id="country" name="country" required>
+                    <option value="">Select your country</option>
+                    <option value="Kuwait"       data-currency="KWD" data-id-label="Civil ID"                            <%= locals.formData?.country === 'Kuwait'       ? 'selected' : '' %>>🇰🇼 Kuwait</option>
+                    <option value="UAE"           data-currency="AED" data-id-label="Emirates ID"                        <%= locals.formData?.country === 'UAE'           ? 'selected' : '' %>>🇦🇪 UAE</option>
+                    <option value="Saudi Arabia"  data-currency="SAR" data-id-label="Iqama"                              <%= locals.formData?.country === 'Saudi Arabia'  ? 'selected' : '' %>>🇸🇦 Saudi Arabia</option>
+                    <option value="Qatar"         data-currency="QAR" data-id-label="Qatar ID (QID)"                     <%= locals.formData?.country === 'Qatar'         ? 'selected' : '' %>>🇶🇦 Qatar</option>
+                    <option value="Bahrain"       data-currency="BHD" data-id-label="CPR Card"                           <%= locals.formData?.country === 'Bahrain'       ? 'selected' : '' %>>🇧🇭 Bahrain</option>
+                    <option value="Oman"          data-currency="OMR" data-id-label="Resident Card (Oman ID)"            <%= locals.formData?.country === 'Oman'          ? 'selected' : '' %>>🇴🇲 Oman</option>
+                    <option value="Other"         data-currency=""    data-id-label="National ID / Residence Permit"     <%= locals.formData?.country === 'Other'         ? 'selected' : '' %>>🌐 Other</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-nav">
+              <span></span>
+              <button type="button" class="btn btn-primary btn-next" data-next="2">Next: Employment →</button>
+            </div>
+          </div>
+
+          <!-- ── Step 2: Employment ── -->
+          <div class="form-step hidden" data-step="2">
+            <div class="step-header">
+              <div class="step-header-icon">💼</div>
+              <div>
+                <h3>Employment &amp; Income</h3>
+                <p>Tell us about your current work and earnings</p>
+              </div>
+            </div>
+
+            <div class="field-card">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="employment_status">Employment Status <span class="req">*</span></label>
+                  <div class="select-wrap">
+                    <select id="employment_status" name="employment_status" required>
+                      <option value="">Select status</option>
+                      <% const statuses = { employed: 'Employed', 'self-employed': 'Self-employed', unemployed: 'Unemployed', student: 'Student', retired: 'Retired' }; %>
+                      <% for (const [value, label] of Object.entries(statuses)) { %>
+                        <option value="<%= value %>" <%= locals.formData?.employment_status === value ? 'selected' : '' %>><%= label %></option>
+                      <% } %>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="monthly_income">Monthly Income</label>
+                  <div class="input-with-prefix">
+                    <span class="currency-prefix" id="income-currency">—</span>
+                    <input type="number" id="monthly_income" name="monthly_income" min="0" step="0.01" value="<%= locals.formData?.monthly_income || '' %>" placeholder="0.00">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="id_number"><span id="id-label">Residence ID Number</span></label>
+                <input type="text" id="id_number" name="id_number" value="<%= locals.formData?.id_number || '' %>" placeholder="Select your country first">
+              </div>
+            </div>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-secondary btn-back" data-back="1">← Back</button>
+              <button type="button" class="btn btn-primary btn-next" data-next="3">Next: Loan Details →</button>
+            </div>
+          </div>
+
+          <!-- ── Step 3: Loan Details ── -->
+          <div class="form-step hidden" data-step="3">
+            <div class="step-header">
+              <div class="step-header-icon">💰</div>
+              <div>
+                <h3>Loan Details</h3>
+                <p>How much do you need and what for?</p>
+              </div>
+            </div>
+
+            <div class="field-card">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="amount">Loan Amount <span class="req">*</span></label>
+                  <div class="input-with-prefix">
+                    <span class="currency-prefix" id="loan-currency">—</span>
+                    <input type="number" id="amount" name="amount" min="1" step="0.01" value="<%= locals.formData?.amount || '' %>" required placeholder="0.00">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="loan_term_months">Repayment Term (months)</label>
+                  <input type="number" id="loan_term_months" name="loan_term_months" min="1" max="120" value="<%= locals.formData?.loan_term_months || '' %>" placeholder="e.g. 12, 24, 36">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="purpose">Loan Purpose <span class="req">*</span></label>
+                <div class="purpose-grid">
+                  <% const purposes = {
+                    'business':  ['💼', 'Business / Startup'],
+                    'education': ['🎓', 'Education / School fees'],
+                    'medical':   ['🏥', 'Medical / Health'],
+                    'home':      ['🏠', 'Home Improvement'],
+                    'vehicle':   ['🚗', 'Vehicle / Transport'],
+                    'debt':      ['🔄', 'Debt Consolidation'],
+                    'personal':  ['👤', 'Personal Expenses'],
+                    'other':     ['📌', 'Other'],
+                  }; %>
+                  <% for (const [value, [icon, label]] of Object.entries(purposes)) { %>
+                    <label class="purpose-card <%= locals.formData?.purpose === value ? 'selected' : '' %>">
+                      <input type="radio" name="purpose" value="<%= value %>" <%= locals.formData?.purpose === value ? 'checked' : '' %>>
+                      <span class="purpose-icon"><%= icon %></span>
+                      <span class="purpose-label"><%= label %></span>
+                    </label>
+                  <% } %>
+                </div>
+                <!-- Hidden select for form validation -->
+                <select id="purpose" name="purpose" required style="display:none">
+                  <option value="">Select purpose</option>
+                  <% for (const [value] of Object.entries(purposes)) { %>
+                    <option value="<%= value %>" <%= locals.formData?.purpose === value ? 'selected' : '' %>><%= value %></option>
+                  <% } %>
+                </select>
+              </div>
+            </div>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-secondary btn-back" data-back="2">← Back</button>
+              <button type="button" class="btn btn-primary btn-next" data-next="4">Next: Documents →</button>
+            </div>
+          </div>
+
+          <!-- ── Step 4: Documents & Submit ── -->
+          <div class="form-step hidden" data-step="4">
+            <div class="step-header">
+              <div class="step-header-icon">📁</div>
+              <div>
+                <h3>Upload Your Documents</h3>
+                <p>Upload clear photos or scans. Accepted formats: JPG, PNG, PDF, HEIC (max 10 MB each)</p>
+              </div>
+            </div>
+
+            <div class="field-card">
+              <p class="upload-section-title">Required Documents</p>
+              <div class="upload-grid">
+                <div class="upload-item">
+                  <label class="upload-label" for="file_passport">✈️ Passport <span class="req">*</span></label>
+                  <div class="upload-drop" id="drop_passport">
+                    <input type="file" id="file_passport" name="file_passport" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <div class="upload-placeholder">
+                      <span class="upload-icon">📎</span>
+                      <span class="upload-text">Click or drag file here</span>
+                      <span class="upload-filename" id="fn_passport"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="upload-item">
+                  <label class="upload-label" for="file_residence_permit">🪪 <span id="id-doc-label">Residence Permit / ID</span> <span class="req">*</span></label>
+                  <div class="upload-drop" id="drop_residence_permit">
+                    <input type="file" id="file_residence_permit" name="file_residence_permit" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <div class="upload-placeholder">
+                      <span class="upload-icon">📎</span>
+                      <span class="upload-text">Click or drag file here</span>
+                      <span class="upload-filename" id="fn_residence_permit"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="upload-item">
+                  <label class="upload-label" for="file_salary_cert">📄 Salary Certificate <span class="req">*</span></label>
+                  <div class="upload-drop" id="drop_salary_cert">
+                    <input type="file" id="file_salary_cert" name="file_salary_cert" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <div class="upload-placeholder">
+                      <span class="upload-icon">📎</span>
+                      <span class="upload-text">Click or drag file here</span>
+                      <span class="upload-filename" id="fn_salary_cert"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="upload-item">
+                  <label class="upload-label" for="file_employment_contract">📋 Employment Contract <span class="req">*</span></label>
+                  <div class="upload-drop" id="drop_employment_contract">
+                    <input type="file" id="file_employment_contract" name="file_employment_contract" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <div class="upload-placeholder">
+                      <span class="upload-icon">📎</span>
+                      <span class="upload-text">Click or drag file here</span>
+                      <span class="upload-filename" id="fn_employment_contract"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="upload-item">
+                  <label class="upload-label" for="file_bank_statements">🏦 Bank Statements (3–6 months) <span class="req">*</span></label>
+                  <div class="upload-drop" id="drop_bank_statements">
+                    <input type="file" id="file_bank_statements" name="file_bank_statements" accept=".jpg,.jpeg,.png,.pdf,.heic" multiple class="upload-input">
+                    <div class="upload-placeholder">
+                      <span class="upload-icon">📎</span>
+                      <span class="upload-text">Click or drag (multiple files allowed)</span>
+                      <span class="upload-filename" id="fn_bank_statements"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="upload-item">
+                  <label class="upload-label" for="file_salary_transfer">💸 Salary Transfer Letter <span class="req">*</span></label>
+                  <div class="upload-drop" id="drop_salary_transfer">
+                    <input type="file" id="file_salary_transfer" name="file_salary_transfer" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <div class="upload-placeholder">
+                      <span class="upload-icon">📎</span>
+                      <span class="upload-text">Click or drag file here</span>
+                      <span class="upload-filename" id="fn_salary_transfer"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="upload-item">
+                  <label class="upload-label" for="file_payslips">🧾 Recent Payslips <span class="req">*</span></label>
+                  <div class="upload-drop" id="drop_payslips">
+                    <input type="file" id="file_payslips" name="file_payslips" accept=".jpg,.jpeg,.png,.pdf,.heic" multiple class="upload-input">
+                    <div class="upload-placeholder">
+                      <span class="upload-icon">📎</span>
+                      <span class="upload-text">Click or drag (multiple files allowed)</span>
+                      <span class="upload-filename" id="fn_payslips"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="upload-item upload-item-optional">
+                  <label class="upload-label" for="file_loan_letters">📁 Loan Liability Letters <em>(optional)</em></label>
+                  <div class="upload-drop" id="drop_loan_letters">
+                    <input type="file" id="file_loan_letters" name="file_loan_letters" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <div class="upload-placeholder">
+                      <span class="upload-icon">📎</span>
+                      <span class="upload-text">Click or drag file here</span>
+                      <span class="upload-filename" id="fn_loan_letters"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Signature Pad -->
+            <div class="field-card">
+              <div class="sig-header">
+                <span class="sig-title">✍️ Your Signature</span>
+                <button type="button" id="sig-clear" class="btn btn-ghost btn-sm">Clear</button>
+              </div>
+              <p class="sig-hint">Sign below using your mouse or finger. This confirms you have read and agree to the terms.</p>
+              <div class="sig-pad-wrap">
+                <canvas id="sig-canvas" class="sig-canvas"></canvas>
+              </div>
+              <input type="hidden" name="signature_data" id="signature_data">
+              <p class="sig-required-msg" id="sig-required-msg" style="display:none; color:#dc2626; font-size:0.85rem; margin-top:.5rem;">Please provide your signature before submitting.</p>
+            </div>
+
+            <!-- Terms -->
+            <div class="field-card">
+              <label class="terms-row">
+                <input type="checkbox" name="terms" <%= locals.formData?.terms === 'on' ? 'checked' : '' %> required>
+                <span>I have read and agree to the <a href="/terms" target="_blank">Privacy Policy</a> and <a href="/legal" target="_blank">Legal Package</a>, and I consent to the collection, processing, and sharing of my personal data and documents for loan evaluation purposes.</span>
+              </label>
+            </div>
+
+            <div class="step-nav">
+              <button type="button" class="btn btn-secondary btn-back" data-back="3">← Back</button>
+              <button type="button" id="preview-schedule-btn" class="btn btn-primary btn-submit-final">
+                Review &amp; Submit Application →
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Right: Sticky Info Panel -->
+      <aside class="apply-sidebar">
+        <div class="sidebar-card">
+          <h4>Why Choose Us?</h4>
+          <ul class="sidebar-list">
+            <li>✅ No upfront fees</li>
+            <li>✅ Fast processing</li>
+            <li>✅ Trusted Gulf lenders</li>
+            <li>✅ OFW specialists</li>
+            <li>✅ Multilingual support</li>
+          </ul>
+        </div>
+
+        <div class="sidebar-card sidebar-card-summary" id="loan-summary-card" style="display:none">
+          <h4>Your Loan Summary</h4>
+          <div class="summary-line"><span>Amount</span><strong id="sb-amount">—</strong></div>
+          <div class="summary-line"><span>Term</span><strong id="sb-term">—</strong></div>
+          <div class="summary-line"><span>Est. Monthly</span><strong id="sb-monthly">—</strong></div>
+        </div>
+
+        <div class="sidebar-card sidebar-card-help">
+          <h4>Need Help?</h4>
+          <p>Our team is available to assist you with your application.</p>
+          <a href="mailto:support@example.com" class="btn btn-secondary btn-sm btn-block" style="margin-top:.75rem">📧 Contact Support</a>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Repayment Schedule Confirmation Modal -->
+    <div id="schedule-modal" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h3 id="modal-title">Review Your Application</h3>
+          <button type="button" id="modal-cancel-btn" class="modal-close-btn" aria-label="Close">✕</button>
+        </div>
+        <p class="modal-subtitle">Check the repayment schedule below before you confirm.</p>
+
+        <div class="schedule-summary">
+          <div class="summary-row"><span>Loan Amount</span><strong id="s-amount">—</strong></div>
+          <div class="summary-row"><span>Term</span><strong id="s-term">—</strong></div>
+          <div class="summary-row"><span>Annual Interest Rate</span><strong id="s-rate">—</strong></div>
+          <div class="summary-row"><span>Monthly Payment</span><strong id="s-monthly">—</strong></div>
+          <div class="summary-row summary-total"><span>Total Repayable</span><strong id="s-total">—</strong></div>
+        </div>
+
+        <div class="schedule-table-wrap">
+          <table class="schedule-table">
+            <thead>
+              <tr><th>Month</th><th>Payment</th><th>Interest</th><th>Principal</th><th>Balance</th></tr>
+            </thead>
+            <tbody id="schedule-body"></tbody>
+          </table>
+        </div>
+
+        <p class="modal-note">This schedule is indicative. Final rate and terms are determined by the lender.</p>
+
+        <div class="modal-actions">
+          <button type="button" id="modal-cancel-btn2" class="btn btn-secondary">← Go Back</button>
+          <button type="button" id="modal-confirm-btn" class="btn btn-primary">Confirm &amp; Submit ✓</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="apply-config" data-interest-rate="<%= interestRate %>"></div>
+    <script src="/js/apply.js"></script>
+
+    <% } %> <%# end currentUser gate %>
+  </div>
+</section>
+
+<!-- ── Waitlist ── -->
+<section id="waitlist" class="waitlist-section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Public Waitlist</h2>
+      <p>Full transparency — see every application in real time.</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number"><%= stats.total || 0 %></span>
+        <span class="stat-label">Total Applied</span>
+      </div>
+      <div class="stat-card stat-pending">
+        <span class="stat-number"><%= stats.pending || 0 %></span>
+        <span class="stat-label">Under Review</span>
+      </div>
+      <div class="stat-card stat-collected">
+        <span class="stat-number"><%= stats.collected || 0 %></span>
+        <span class="stat-label">Funded</span>
+      </div>
+    </div>
+
+    <div class="waitlist-table-wrap">
+      <table class="waitlist-table">
+        <thead>
+          <tr><th>Name</th><th>Status</th><th>Applied</th></tr>
+        </thead>
+        <tbody id="waitlist-tbody">
+          <tr><td colspan="3" class="empty-row">Loading…</td></tr>
+        </tbody>
+      </table>
+
+      <div class="waitlist-pagination" id="waitlist-pagination">
+        <button class="btn btn-sm btn-ghost" id="wl-prev" disabled>← Prev</button>
+        <span class="wl-page-info" id="wl-page-info">Page 1</span>
+        <button class="btn btn-sm btn-ghost" id="wl-next">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+<script src="/js/waitlist.js"></script>

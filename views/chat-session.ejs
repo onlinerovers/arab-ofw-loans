@@ -1,0 +1,44 @@
+<section class="dashboard-header">
+  <div class="container">
+    <div class="dashboard-header-inner">
+      <div>
+        <h1>Chat Session</h1>
+        <p>Started <%= new Date(session.created_at).toLocaleString() %></p>
+      </div>
+      <a href="/admin/chat-logs" class="btn btn-ghost">← Back to chat logs</a>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-content">
+  <div class="container">
+    <div class="loan-detail-card">
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="detail-label">User Name</span>
+          <span class="detail-value"><%= session.user_name || 'Anonymous' %></span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">User Email</span>
+          <span class="detail-value"><%= session.user_email || '—' %></span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Session ID</span>
+          <span class="detail-value"><code><%= session.session_id %></code></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="loan-detail-card">
+      <h2>Conversation</h2>
+      <div class="chat-log-messages">
+        <% messages.forEach(function(msg) { %>
+          <div class="chat-log-message chat-log-message--<%= msg.role %>">
+            <div class="chat-log-bubble"><%= msg.message %></div>
+            <span class="chat-log-time"><%= new Date(msg.created_at).toLocaleString() %></span>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</section>

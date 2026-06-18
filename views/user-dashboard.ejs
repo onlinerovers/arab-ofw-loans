@@ -1,0 +1,209 @@
+<div class="dash-wrap">
+
+  <!-- Sidebar -->
+  <aside class="dash-sidebar">
+    <div class="dash-sidebar-top">
+      <div class="dash-avatar">
+        <%= user.full_name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase() %>
+      </div>
+      <div class="dash-user-info">
+        <span class="dash-user-name"><%= user.full_name %></span>
+        <span class="dash-user-email"><%= user.email %></span>
+      </div>
+    </div>
+
+    <nav class="dash-nav">
+      <a href="/user/dashboard" class="dash-nav-item active">
+        <span class="dash-nav-icon">⊞</span> Overview
+      </a>
+      <a href="/#apply" class="dash-nav-item">
+        <span class="dash-nav-icon">✦</span> Apply for Loan
+      </a>
+    </nav>
+
+    <div class="dash-sidebar-bottom">
+      <form action="/user/logout" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="dash-logout-btn">↩ Log Out</button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="dash-main">
+
+    <% if (success && success.length) { %>
+      <div class="alert alert-success" style="margin-bottom:1.5rem;"><%= Array.isArray(success) ? success[0] : success %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="alert alert-error" style="margin-bottom:1.5rem;"><%= Array.isArray(error) ? error[0] : error %></div>
+    <% } %>
+
+    <!-- Page title -->
+    <div class="dash-page-header">
+      <div>
+        <h1 class="dash-page-title">Good day, <%= user.full_name.split(' ')[0] %> 👋</h1>
+        <p class="dash-page-sub">Here's everything about your loan and wallet.</p>
+      </div>
+      <a href="/#apply" class="btn btn-primary">+ New Application</a>
+    </div>
+
+    <!-- Stat cards row -->
+    <div class="dash-stats">
+      <!-- Wallet balance -->
+      <div class="dash-stat-card dash-stat-wallet">
+        <div class="dash-stat-label">Wallet Balance</div>
+        <div class="dash-stat-value">
+          <% if (wallet && wallet.balance > 0) { %>
+            <%= Number(wallet.balance).toLocaleString('en-US',{minimumFractionDigits:2}) %>
+            <span class="dash-stat-unit"><%= wallet.currency %></span>
+          <% } else { %>
+            <span class="dash-stat-zero">0.00</span>
+          <% } %>
+        </div>
+        <div class="dash-stat-hint">Disbursed loan funds</div>
+      </div>
+
+      <!-- Total applications -->
+      <div class="dash-stat-card">
+        <div class="dash-stat-label">Applications</div>
+        <div class="dash-stat-value"><%= loans.length %></div>
+        <div class="dash-stat-hint">Total submitted</div>
+      </div>
+
+      <!-- Active / latest status -->
+      <div class="dash-stat-card">
+        <div class="dash-stat-label">Latest Status</div>
+        <div class="dash-stat-value" style="font-size:1.1rem;">
+          <% if (loans.length) { %>
+            <% var latest = loans[0]; %>
+            <span class="status-badge status-<%= latest.status %>" style="font-size:.85rem;">
+              <%= latest.status === 'collected' ? 'Funded' : latest.status.charAt(0).toUpperCase() + latest.status.slice(1) %>
+            </span>
+          <% } else { %>
+            <span style="color:var(--color-muted);font-size:.9rem;">—</span>
+          <% } %>
+        </div>
+        <div class="dash-stat-hint">Most recent application</div>
+      </div>
+
+      <!-- Transactions -->
+      <div class="dash-stat-card">
+        <div class="dash-stat-label">Transactions</div>
+        <div class="dash-stat-value"><%= transactions.length %></div>
+        <div class="dash-stat-hint">Wallet movements</div>
+      </div>
+    </div>
+
+    <!-- Applications list -->
+    <section class="dash-section">
+      <div class="dash-section-header">
+        <h2>My Applications</h2>
+        <% if (loans.length) { %>
+          <a href="/#apply" class="btn btn-sm btn-ghost">+ Apply again</a>
+        <% } %>
+      </div>
+
+      <% if (!loans.length) { %>
+        <div class="dash-empty-state">
+          <div class="dash-empty-icon">📋</div>
+          <p class="dash-empty-title">No applications yet</p>
+          <p class="dash-empty-sub">Submit your first loan application to get started.</p>
+          <a href="/#apply" class="btn btn-primary" style="margin-top:1rem;">Apply Now</a>
+        </div>
+      <% } else { %>
+        <div class="dash-loan-list">
+          <% loans.forEach(function(loan) { %>
+            <div class="dash-loan-card dash-loan--<%= loan.status %>">
+
+              <!-- Top row -->
+              <div class="dash-loan-top">
+                <div>
+                  <span class="dash-loan-ref"><%= loan.reference_number %></span>
+                  <span class="status-badge status-<%= loan.status %>" style="margin-left:.6rem;">
+                    <%= loan.status === 'collected' ? 'Funded' : loan.status.charAt(0).toUpperCase() + loan.status.slice(1) %>
+                  </span>
+                </div>
+                <span class="dash-loan-date">
+                  <%= new Date(loan.applied_at).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) %>
+                </span>
+              </div>
+
+              <!-- Amount + purpose -->
+              <div class="dash-loan-body">
+                <div class="dash-loan-amount">
+                  <%= Number(loan.amount).toLocaleString() %>
+                  <span class="dash-loan-currency"><%= loan.currency || '' %></span>
+                </div>
+                <div class="dash-loan-meta">
+                  <% if (loan.loan_term_months) { %><span><%= loan.loan_term_months %> months</span><% } %>
+                  <% if (loan.purpose) { %><span><%= loan.purpose.charAt(0).toUpperCase() + loan.purpose.slice(1).replace(/_/g,' ') %></span><% } %>
+                  <% if (loan.country) { %><span><%= loan.country %></span><% } %>
+                </div>
+              </div>
+
+              <!-- Progress timeline -->
+              <div class="dash-timeline">
+                <div class="dash-tl-step <%= ['pending','approved','collected','rejected'].includes(loan.status) ? 'done' : '' %>">
+                  <div class="dash-tl-dot"></div>
+                  <div class="dash-tl-label">Submitted</div>
+                </div>
+                <div class="dash-tl-bar <%= ['approved','collected'].includes(loan.status) ? 'filled' : '' %>"></div>
+                <div class="dash-tl-step <%= ['approved','collected'].includes(loan.status) ? 'done' : (loan.status === 'rejected' ? 'rejected' : '') %>">
+                  <div class="dash-tl-dot"></div>
+                  <div class="dash-tl-label">Reviewed</div>
+                </div>
+                <div class="dash-tl-bar <%= loan.status === 'collected' ? 'filled' : '' %>"></div>
+                <div class="dash-tl-step <%= loan.status === 'collected' ? 'done' : '' %>">
+                  <div class="dash-tl-dot"></div>
+                  <div class="dash-tl-label">Funded</div>
+                </div>
+              </div>
+
+              <!-- Status message -->
+              <% if (loan.status === 'pending') { %>
+                <div class="dash-loan-msg dash-msg--pending">⏳ Under review — we'll update you shortly.</div>
+              <% } else if (loan.status === 'approved') { %>
+                <div class="dash-loan-msg dash-msg--approved">✅ Approved! Funds are being prepared.</div>
+              <% } else if (loan.status === 'collected') { %>
+                <div class="dash-loan-msg dash-msg--funded">🎉 Funded! Check your wallet balance above.</div>
+              <% } else if (loan.status === 'rejected') { %>
+                <div class="dash-loan-msg dash-msg--rejected">❌ Not approved. You're welcome to apply again.</div>
+              <% } %>
+
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <!-- Transaction history -->
+    <% if (transactions.length) { %>
+    <section class="dash-section">
+      <div class="dash-section-header">
+        <h2>Transaction History</h2>
+      </div>
+      <div class="dash-txn-table">
+        <div class="dash-txn-head">
+          <span>Description</span>
+          <span>Date</span>
+          <span style="text-align:right;">Amount</span>
+        </div>
+        <% transactions.forEach(function(t) { %>
+          <div class="dash-txn-row">
+            <span class="dash-txn-desc">
+              <span class="dash-txn-badge dash-txn-badge--<%= t.type %>"><%= t.type %></span>
+              <%= t.description || (t.type === 'credit' ? 'Funds disbursed' : 'Debit') %>
+            </span>
+            <span class="dash-txn-when"><%= new Date(t.created_at).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) %></span>
+            <span class="dash-txn-amt dash-txn-amt--<%= t.type %>">
+              <%= t.type === 'credit' ? '+' : '-' %><%= Number(t.amount).toLocaleString('en-US',{minimumFractionDigits:2}) %>
+            </span>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+    <% } %>
+
+  </main>
+</div>

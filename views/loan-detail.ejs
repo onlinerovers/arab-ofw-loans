@@ -1,0 +1,354 @@
+<%
+  const purposeLabels = { business:'Business / Startup', education:'Education / School fees', medical:'Medical / Health', home:'Home improvement', vehicle:'Vehicle / Transportation', debt:'Debt consolidation', personal:'Personal expenses', other:'Other' };
+  const empLabels     = { employed:'Employed', 'self-employed':'Self-employed', unemployed:'Unemployed', student:'Student', retired:'Retired' };
+  const statusColor   = { pending:'warning', approved:'success', collected:'info', rejected:'danger' };
+  const cur = loan.currency || 'USD';
+  function money(n) { return Number(n).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }) + ' ' + cur; }
+%>
+
+<section class="dashboard-header">
+  <div class="container">
+    <div class="dashboard-header-inner">
+      <div>
+        <div class="loan-title-row">
+          <h1>Loan Application</h1>
+          <span class="status-badge status-<%= loan.status %> status-lg">
+            <%= loan.status.charAt(0).toUpperCase() + loan.status.slice(1) %>
+          </span>
+        </div>
+        <p class="loan-ref">Ref: <strong><%= loan.reference_number %></strong> &nbsp;·&nbsp; Applied <%= new Date(loan.applied_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) %></p>
+      </div>
+      <a href="/admin/dashboard" class="btn btn-ghost">← Dashboard</a>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-content">
+  <div class="container">
+
+    <% if (success && success.length) { %>
+      <div class="alert alert-success"><%= success %></div>
+    <% } %>
+    <% if (error && error.length) { %>
+      <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <!-- Action bar -->
+    <% if (loan.status === 'pending' || loan.status === 'approved') { %>
+    <div class="action-bar">
+      <% if (loan.status === 'pending') { %>
+        <form action="/admin/loans/<%= loan.id %>/approve" method="POST" class="action-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-success btn-action">
+            <span class="btn-icon">✓</span> Approve Loan
+          </button>
+        </form>
+        <form action="/admin/loans/<%= loan.id %>/reject" method="POST" class="action-form" id="reject-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-danger btn-action">
+            <span class="btn-icon">✕</span> Reject Application
+          </button>
+        </form>
+      <% } %>
+      <% if (loan.status === 'approved') { %>
+        <form action="/admin/loans/<%= loan.id %>/collect" method="POST" class="action-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-primary btn-action">
+            <span class="btn-icon">💰</span> Mark as Collected
+          </button>
+        </form>
+      <% } %>
+    </div>
+    <% } %>
+
+    <!-- Rejection / approval timeline strip -->
+    <% if (loan.status === 'approved' || loan.status === 'collected' || loan.status === 'rejected') { %>
+    <div class="timeline-strip">
+      <div class="timeline-step done">
+        <div class="tl-dot"></div>
+        <div class="tl-label">Applied<br><small><%= new Date(loan.applied_at).toLocaleDateString() %></small></div>
+      </div>
+      <div class="timeline-line"></div>
+      <% if (loan.status === 'rejected') { %>
+        <div class="timeline-step rejected">
+          <div class="tl-dot"></div>
+          <div class="tl-label">Rejected<br><small><%= loan.rejected_at ? new Date(loan.rejected_at).toLocaleDateString() : '' %></small></div>
+        </div>
+      <% } else { %>
+        <div class="timeline-step done">
+          <div class="tl-dot"></div>
+          <div class="tl-label">Approved<br><small><%= loan.approved_at ? new Date(loan.approved_at).toLocaleDateString() : '' %></small></div>
+        </div>
+        <div class="timeline-line"></div>
+        <div class="timeline-step <%= loan.status === 'collected' ? 'done' : '' %>">
+          <div class="tl-dot"></div>
+          <div class="tl-label">Collected<br><small><%= loan.collected_at ? new Date(loan.collected_at).toLocaleDateString() : '—' %></small></div>
+        </div>
+      <% } %>
+    </div>
+    <% } %>
+
+    <!-- Main grid -->
+    <div class="ld-grid">
+
+      <!-- Left column -->
+      <div class="ld-col">
+
+        <div class="ld-card">
+          <div class="ld-card-header">
+            <span class="ld-card-icon">👤</span>
+            <h2>Applicant</h2>
+          </div>
+          <dl class="ld-dl">
+            <div class="ld-row">
+              <dt>Full Name</dt>
+              <dd><%= loan.full_name %></dd>
+            </div>
+            <div class="ld-row">
+              <dt>Date of Birth</dt>
+              <dd><%= loan.date_of_birth || '—' %></dd>
+            </div>
+            <div class="ld-row">
+              <dt>Nationality</dt>
+              <dd><%= loan.nationality || '—' %></dd>
+            </div>
+            <div class="ld-row">
+              <dt>Country</dt>
+              <dd><%= loan.country || '—' %></dd>
+            </div>
+            <div class="ld-row">
+              <dt>ID Number</dt>
+              <dd><%= loan.id_number || '—' %></dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="ld-card">
+          <div class="ld-card-header">
+            <span class="ld-card-icon">📬</span>
+            <h2>Contact</h2>
+          </div>
+          <dl class="ld-dl">
+            <div class="ld-row">
+              <dt>Email</dt>
+              <dd><a href="mailto:<%= loan.email %>"><%= loan.email %></a></dd>
+            </div>
+            <div class="ld-row">
+              <dt>Phone</dt>
+              <dd><a href="tel:<%= loan.phone %>"><%= loan.phone %></a></dd>
+            </div>
+            <div class="ld-row">
+              <dt>Address</dt>
+              <dd><%= loan.address || '—' %></dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="ld-card">
+          <div class="ld-card-header">
+            <span class="ld-card-icon">💼</span>
+            <h2>Employment</h2>
+          </div>
+          <dl class="ld-dl">
+            <div class="ld-row">
+              <dt>Status</dt>
+              <dd><%= empLabels[loan.employment_status] || loan.employment_status || '—' %></dd>
+            </div>
+            <div class="ld-row">
+              <dt>Monthly Income</dt>
+              <dd><%= loan.monthly_income ? money(loan.monthly_income) : '—' %></dd>
+            </div>
+          </dl>
+        </div>
+
+      </div>
+
+      <!-- Right column -->
+      <div class="ld-col">
+
+        <div class="ld-card ld-card-highlight">
+          <div class="ld-card-header">
+            <span class="ld-card-icon">💰</span>
+            <h2>Loan Details</h2>
+          </div>
+          <div class="loan-amount-hero">
+            <span class="loan-amount-big"><%= money(loan.amount) %></span>
+            <span class="loan-amount-sub">over <%= loan.loan_term_months ? loan.loan_term_months + ' months' : '—' %></span>
+          </div>
+          <dl class="ld-dl">
+            <div class="ld-row">
+              <dt>Purpose</dt>
+              <dd><%= purposeLabels[loan.purpose] || loan.purpose || '—' %></dd>
+            </div>
+            <div class="ld-row">
+              <dt>Monthly Payment</dt>
+              <dd><%= (loan.loan_term_months && loan.loan_term_months > 0) ? money(loan.amount / loan.loan_term_months) : '—' %></dd>
+            </div>
+            <% if (loan.approved_at) { %>
+            <div class="ld-row">
+              <dt>Approved</dt>
+              <dd><%= new Date(loan.approved_at).toLocaleString() %> <span class="text-muted">by <%= loan.approved_by_name || 'Admin' %></span></dd>
+            </div>
+            <% } %>
+            <% if (loan.rejected_at) { %>
+            <div class="ld-row">
+              <dt>Rejected</dt>
+              <dd><%= new Date(loan.rejected_at).toLocaleString() %> <span class="text-muted">by <%= loan.rejected_by_name || 'Admin' %></span></dd>
+            </div>
+            <% } %>
+            <% if (loan.collected_at) { %>
+            <div class="ld-row">
+              <dt>Collected</dt>
+              <dd><%= new Date(loan.collected_at).toLocaleString() %></dd>
+            </div>
+            <% } %>
+          </dl>
+        </div>
+
+        <!-- Repayment tracking -->
+        <div class="ld-card">
+          <div class="ld-card-header">
+            <span class="ld-card-icon">📊</span>
+            <h2>Repayment Tracking</h2>
+          </div>
+
+          <% const remaining = Math.max(0, loan.amount - totalPaid); const pct = loan.amount > 0 ? Math.min(100, (totalPaid / loan.amount) * 100) : 0; %>
+          <div class="repayment-stats">
+            <div class="repayment-stat">
+              <span class="repayment-stat-value"><%= money(totalPaid) %></span>
+              <span class="repayment-stat-label">Paid</span>
+            </div>
+            <div class="repayment-stat">
+              <span class="repayment-stat-value"><%= money(remaining) %></span>
+              <span class="repayment-stat-label">Remaining</span>
+            </div>
+            <div class="repayment-stat">
+              <span class="repayment-stat-value"><%= pct.toFixed(0) %>%</span>
+              <span class="repayment-stat-label">Progress</span>
+            </div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:<%= pct %>%"></div>
+          </div>
+
+          <% if (loan.status === 'approved' || loan.status === 'collected') { %>
+          <form action="/admin/loans/<%= loan.id %>/payments" method="POST" class="payment-entry-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <div class="payment-entry-row">
+              <div class="form-group">
+                <label for="payment_amount">Amount (<%= cur %>)</label>
+                <input type="number" id="payment_amount" name="amount" min="0.01" step="0.01" required placeholder="0.00">
+              </div>
+              <div class="form-group">
+                <label for="payment_notes">Notes</label>
+                <input type="text" id="payment_notes" name="notes" placeholder="Optional">
+              </div>
+              <button type="submit" class="btn btn-secondary btn-record">Record</button>
+            </div>
+          </form>
+          <% } %>
+
+          <% if (payments && payments.length) { %>
+          <div class="payment-list">
+            <% payments.forEach(function(p) { %>
+              <div class="payment-row">
+                <div>
+                  <strong><%= money(p.amount) %></strong>
+                  <% if (p.notes) { %><span class="text-muted"> · <%= p.notes %></span><% } %>
+                </div>
+                <div class="payment-meta">
+                  <%= new Date(p.paid_at).toLocaleDateString() %>
+                  <span class="text-muted">by <%= p.recorded_by_name || 'Admin' %></span>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+          <% } else { %>
+            <p class="empty-row" style="margin-top:1rem;">No payments recorded yet.</p>
+          <% } %>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Uploaded Documents -->
+    <div class="ld-card ld-card-full">
+      <div class="ld-card-header">
+        <span class="ld-card-icon">📎</span>
+        <h2>Uploaded Documents</h2>
+      </div>
+      <% if (documents && documents.length) { %>
+        <div class="docs-grid">
+          <% documents.forEach(function(doc) { %>
+            <a href="/uploads/<%= doc.stored_name %>" target="_blank" class="doc-item">
+              <span class="doc-icon">📄</span>
+              <div class="doc-info">
+                <span class="doc-type"><%= doc.doc_type.replace(/_/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}) %></span>
+                <span class="doc-name"><%= doc.original_name %></span>
+                <span class="doc-date text-muted"><%= new Date(doc.uploaded_at).toLocaleString() %></span>
+              </div>
+            </a>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="empty-row">No documents uploaded.</p>
+      <% } %>
+    </div>
+
+    <!-- Applicant Signature -->
+    <% if (loan.signature_data) { %>
+    <div class="ld-card ld-card-full">
+      <div class="ld-card-header">
+        <span class="ld-card-icon">✍️</span>
+        <h2>Applicant Signature</h2>
+      </div>
+      <div class="sig-display">
+        <img src="<%= loan.signature_data %>" alt="Applicant Signature" class="sig-image">
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Admin Notes (full width) -->
+    <div class="ld-card ld-card-full">
+      <div class="ld-card-header">
+        <span class="ld-card-icon">📝</span>
+        <h2>Admin Notes</h2>
+      </div>
+      <form action="/admin/loans/<%= loan.id %>/notes" method="POST" class="note-entry-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div class="note-entry-row">
+          <textarea id="note" name="note" rows="2" required placeholder="Add an internal note…"></textarea>
+          <button type="submit" class="btn btn-secondary">Add Note</button>
+        </div>
+      </form>
+
+      <% if (notes && notes.length) { %>
+        <div class="notes-list">
+          <% notes.forEach(function(n) { %>
+            <div class="note-item">
+              <p class="note-text"><%= n.note %></p>
+              <p class="note-meta"><%= n.admin_username || 'Admin' %> &nbsp;·&nbsp; <%= new Date(n.created_at).toLocaleString() %></p>
+            </div>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="empty-row">No notes yet.</p>
+      <% } %>
+    </div>
+
+  </div>
+</section>
+
+<!-- Reject confirmation dialog -->
+<div id="reject-confirm" class="modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+  <div class="modal-box modal-box--sm">
+    <h3>Reject this application?</h3>
+    <p style="color:var(--color-muted);margin:.5rem 0 1.5rem;">This will notify the applicant and cannot be undone.</p>
+    <div class="modal-actions">
+      <button type="button" id="reject-cancel" class="btn btn-secondary">Cancel</button>
+      <button type="button" id="reject-confirm-btn" class="btn btn-danger">Yes, Reject</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/loan-detail.js"></script>
