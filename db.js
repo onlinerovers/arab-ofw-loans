@@ -188,7 +188,7 @@ async function seedSettings() {
     support_email: process.env.SUPPORT_EMAIL || '',
     company_address: process.env.COMPANY_ADDRESS || '',
     email_sender_name: process.env.EMAIL_SENDER_NAME || 'Arab OFW Loans',
-    interest_rate: '0',
+    interest_rate: process.env.INTEREST_RATE || '5',
   };
   for (const [key, value] of Object.entries(defaults)) {
     await run(
@@ -198,10 +198,64 @@ async function seedSettings() {
   }
 }
 
+async function seedWaitlist() {
+  const row = await one('SELECT COUNT(*)::int AS cnt FROM loans');
+  if (row.cnt > 0) return; // already seeded
+
+  const COUNTRIES = [
+    { name: 'Kuwait',       currency: 'KWD', nationalities: ['Kuwaiti','Egyptian','Indian','Filipino'] },
+    { name: 'UAE',          currency: 'AED', nationalities: ['Emirati','Pakistani','Indian','Filipino'] },
+    { name: 'Saudi Arabia', currency: 'SAR', nationalities: ['Saudi','Yemeni','Egyptian','Filipino'] },
+    { name: 'Qatar',        currency: 'QAR', nationalities: ['Qatari','Indian','Filipino','Nepali'] },
+    { name: 'Bahrain',      currency: 'BHD', nationalities: ['Bahraini','Indian','Filipino','Pakistani'] },
+    { name: 'Oman',         currency: 'OMR', nationalities: ['Omani','Indian','Filipino','Bangladeshi'] },
+  ];
+  const MALE   = ['Mohammed','Ahmed','Ali','Omar','Khalid','Abdullah','Hassan','Ibrahim','Yusuf','Tariq','Nasser','Faisal','Samir','Rami','Bilal','Kareem','Ziad','Adel','Walid','Maher','Sami','Jassim','Hamad','Sultan','Rashid','Majid','Salim','Nawaf','Bader','Fahad'];
+  const FEMALE = ['Fatima','Aisha','Maryam','Sara','Noura','Hessa','Reem','Layla','Dana','Shaikha','Manal','Amira','Nadia','Hanan','Rana','Dina','Lina','Yasmine','Ghada','Abeer'];
+  const LNAMES = ['Al-Rashidi','Al-Mutairi','Al-Otaibi','Al-Harbi','Al-Dosari','Al-Mansoori','Al-Suwaidi','Al-Mazrouei','Al-Shamsi','Al-Nuaimi','Al-Thani','Al-Kuwari','Al-Naimi','Al-Marri','Al-Emadi','Al-Balushi','Al-Habsi','Al-Rawahi','Al-Maktoumi','Al-Zaabi','Santos','Reyes','Cruz','Garcia','Mendoza','Khan','Ahmed','Hussain','Malik','Sheikh','Sharma','Patel','Singh','Nair','Kumar'];
+  const PURPOSES   = ['personal','business','education','medical','home improvement','travel','debt consolidation'];
+  const EMPLOYMENT = ['employed','self-employed'];
+  const STATUSES   = ['pending','pending','pending','pending','approved','collected'];
+
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const amountFor = (cur) => { const r={KWD:[500,5000],AED:[2000,20000],SAR:[2000,20000],QAR:[2000,20000],BHD:[500,5000],OMR:[500,5000]}; const [mn,mx]=r[cur]||[1000,10000]; return rand(mn/100,mx/100)*100; };
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  let inserted = 0;
+
+  for (let d = 0; d < 7; d++) {
+    const day = new Date(today);
+    day.setDate(today.getDate() - d);
+
+    for (let i = 0; i < 30; i++) {
+      const country  = pick(COUNTRIES);
+      const first    = Math.random() > 0.35 ? pick(MALE) : pick(FEMALE);
+      const name     = `${first} ${pick(LNAMES)}`;
+      const status   = pick(STATUSES);
+      const email    = `${name.toLowerCase().replace(/[^a-z]/g,'.').replace(/\.+/g,'.')}${rand(1,999)}@${pick(['gmail.com','yahoo.com','hotmail.com'])}`;
+      const phone    = `${pick(['+965','+971','+966','+974','+973','+968'])}${rand(50000000,99999999)}`;
+      const appliedAt = new Date(day); appliedAt.setHours(rand(7,22),rand(0,59),rand(0,59));
+      let approvedAt = null, collectedAt = null;
+      if (status === 'approved' || status === 'collected') approvedAt = new Date(appliedAt.getTime() + rand(1,3)*86400000);
+      if (status === 'collected') collectedAt = new Date(approvedAt.getTime() + rand(1,2)*86400000);
+      const ref = 'LN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2,6).toUpperCase();
+
+      await pool.query(`
+        INSERT INTO loans (reference_number,full_name,email,phone,country,currency,nationality,employment_status,monthly_income,amount,loan_term_months,purpose,status,applied_at,approved_at,collected_at)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16) ON CONFLICT (reference_number) DO NOTHING
+      `, [ref,name,email,phone,country.name,country.currency,pick(country.nationalities),pick(EMPLOYMENT),rand(800,6000),amountFor(country.currency),pick([6,12,18,24,36]),pick(PURPOSES),status,appliedAt.toISOString(),approvedAt?.toISOString()||null,collectedAt?.toISOString()||null]);
+      inserted++;
+    }
+  }
+  console.log(`[db] Seeded ${inserted} dummy waitlist applicants.`);
+}
+
 async function init() {
   await initSchema();
   await seedAdmin();
   await seedSettings();
+  await seedWaitlist();
 }
 
 module.exports = { pool, query, one, all, run, init };
