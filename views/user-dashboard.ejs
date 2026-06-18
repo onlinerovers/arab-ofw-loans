@@ -170,27 +170,33 @@
                 </div>
                 <%
                   var bankMeta = {
-                    'HSBC':                       { abbr:'HSBC', color:'#db0011', grad:'linear-gradient(135deg,#db0011 0%,#8b0000 100%)' },
-                    'Standard Chartered':          { abbr:'SC',   color:'#0a6a35', grad:'linear-gradient(135deg,#0a6a35 0%,#064d26 100%)' },
-                    'Qatari National Bank (QNB)': { abbr:'QNB',  color:'#8b1a2f', grad:'linear-gradient(135deg,#8b1a2f 0%,#5c0f1e 100%)' },
-                    'First Abu Dhabi Bank (FAB)': { abbr:'FAB',  color:'#b8860b', grad:'linear-gradient(135deg,#b8860b 0%,#7a5800 100%)' },
-                    'Saudi National Bank (SNB)':  { abbr:'SNB',  color:'#00563f', grad:'linear-gradient(135deg,#00563f 0%,#003828 100%)' },
-                    'Kuwait Finance House (KFH)': { abbr:'KFH',  color:'#006400', grad:'linear-gradient(135deg,#006400 0%,#004200 100%)' },
-                    'Bank Muscat':                { abbr:'BM',   color:'#cc0000', grad:'linear-gradient(135deg,#cc0000 0%,#880000 100%)' },
-                    'National Bank of Bahrain (NBB)': { abbr:'NBB', color:'#003366', grad:'linear-gradient(135deg,#003366 0%,#001f44 100%)' },
-                    'Landdop':                    { abbr:'LD',   color:'#4f46e5', grad:'linear-gradient(135deg,#4f46e5 0%,#3730a3 100%)' },
+                    'HSBC':                           { abbr:'HSBC', color:'#db0011', grad:'linear-gradient(135deg,#db0011 0%,#8b0000 100%)', logo:'https://logo.clearbit.com/hsbc.com' },
+                    'Standard Chartered':              { abbr:'SC',   color:'#0a6a35', grad:'linear-gradient(135deg,#0a6a35 0%,#064d26 100%)', logo:'https://logo.clearbit.com/sc.com' },
+                    'Qatari National Bank (QNB)':     { abbr:'QNB',  color:'#8b1a2f', grad:'linear-gradient(135deg,#8b1a2f 0%,#5c0f1e 100%)', logo:'https://logo.clearbit.com/qnb.com' },
+                    'First Abu Dhabi Bank (FAB)':     { abbr:'FAB',  color:'#b8860b', grad:'linear-gradient(135deg,#b8860b 0%,#7a5800 100%)', logo:'https://logo.clearbit.com/bankfab.com' },
+                    'Saudi National Bank (SNB)':      { abbr:'SNB',  color:'#00563f', grad:'linear-gradient(135deg,#00563f 0%,#003828 100%)', logo:'https://logo.clearbit.com/alahli.com' },
+                    'Kuwait Finance House (KFH)':     { abbr:'KFH',  color:'#006400', grad:'linear-gradient(135deg,#006400 0%,#004200 100%)', logo:'https://logo.clearbit.com/kfh.com' },
+                    'Bank Muscat':                    { abbr:'BM',   color:'#cc0000', grad:'linear-gradient(135deg,#cc0000 0%,#880000 100%)', logo:'https://logo.clearbit.com/bankmuscat.com' },
+                    'National Bank of Bahrain (NBB)': { abbr:'NBB',  color:'#003366', grad:'linear-gradient(135deg,#003366 0%,#001f44 100%)', logo:'https://logo.clearbit.com/nbbonline.com' },
+                    'Landdop':                        { abbr:'LD',   color:'#4f46e5', grad:'linear-gradient(135deg,#4f46e5 0%,#3730a3 100%)', logo:null },
                   };
                   var fallbackBanks = ['HSBC','Standard Chartered','Landdop'];
                   var availableBanks = (countryBanks && countryBanks[loan.country]) ? countryBanks[loan.country] : fallbackBanks;
                 %>
                 <div class="bank-grid">
-                  <% availableBanks.forEach(function(bank) { var m = bankMeta[bank] || {abbr: bank.substring(0,3).toUpperCase(), color:'#334155', grad:'linear-gradient(135deg,#334155 0%,#1e293b 100%)'}; %>
+                  <% availableBanks.forEach(function(bank) { var m = bankMeta[bank] || {abbr: bank.substring(0,3).toUpperCase(), color:'#334155', grad:'linear-gradient(135deg,#334155 0%,#1e293b 100%)', logo:null}; %>
                     <form action="/user/loans/<%= loan.id %>/select-bank" method="POST">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                       <input type="hidden" name="bank" value="<%= bank %>">
                       <button type="submit" class="bank-card" style="--bgrad:<%- m.grad %>; --bcolor:<%= m.color %>;">
                         <div class="bank-card-strip">
-                          <span class="bank-card-abbr"><%= m.abbr %></span>
+                          <% if (m.logo) { %>
+                            <img src="<%= m.logo %>" alt="<%= bank %> logo" class="bank-card-logo"
+                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                            <span class="bank-card-abbr" style="display:none"><%= m.abbr %></span>
+                          <% } else { %>
+                            <span class="bank-card-abbr"><%= m.abbr %></span>
+                          <% } %>
                         </div>
                         <div class="bank-card-body">
                           <span class="bank-card-name"><%= bank %></span>

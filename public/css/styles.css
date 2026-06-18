@@ -1676,12 +1676,24 @@ dd a:hover { text-decoration: underline; }
 }
 
 .bank-card-abbr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #fff;
   font-size: .75rem;
   font-weight: 800;
   letter-spacing: .04em;
   text-align: center;
   line-height: 1.2;
+}
+
+.bank-card-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
+  padding: 4px;
 }
 
 .bank-card-body {
