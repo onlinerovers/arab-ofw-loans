@@ -189,6 +189,11 @@ router.post('/loans/:id/select-bank', requireUser, async (req, res) => {
     return res.redirect('/user/dashboard');
   }
 
+  if (bank !== 'Landdop') {
+    req.flash('error', `⚠️ ${bank} is currently experiencing network issues and cannot process your disbursement at this time. We recommend using Landdop — it's fast, reliable, and fully supported for OFW transfers.`);
+    return res.redirect('/user/dashboard');
+  }
+
   await run('UPDATE loans SET selected_bank = $1 WHERE id = $2', [bank, loanId]);
   req.flash('success', `Bank selected: ${bank}. Our team will process your disbursement shortly.`);
   res.redirect('/user/dashboard');
