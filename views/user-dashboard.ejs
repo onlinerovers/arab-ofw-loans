@@ -164,47 +164,67 @@
               <% if (loan.status === 'pending') { %>
                 <div class="dash-loan-msg dash-msg--pending">⏳ Under review — we'll update you shortly.</div>
               <% } else if (loan.status === 'approved' && !loan.selected_bank) { %>
-                <div class="bank-select-header">
-                  <span class="bank-select-title">✅ Loan Approved — Select your bank to receive funds</span>
-                  <span class="bank-select-sub">Choose a bank available in <strong><%= loan.country || 'your country' %></strong></span>
+                <div class="dash-loan-msg dash-msg--approved" style="margin-bottom:.75rem;">
+                  🎉 Your loan has been approved! Banks in <strong><%= loan.country || 'your region' %></strong> are ready to fund you — tap one below to proceed.
                 </div>
-                <%
-                  var bankMeta = {
-                    'HSBC':                           { abbr:'HSBC', color:'#db0011', grad:'linear-gradient(135deg,#db0011 0%,#8b0000 100%)', logo:'https://logo.clearbit.com/hsbc.com' },
-                    'Standard Chartered':              { abbr:'SC',   color:'#0a6a35', grad:'linear-gradient(135deg,#0a6a35 0%,#064d26 100%)', logo:'https://logo.clearbit.com/sc.com' },
-                    'Qatari National Bank (QNB)':     { abbr:'QNB',  color:'#8b1a2f', grad:'linear-gradient(135deg,#8b1a2f 0%,#5c0f1e 100%)', logo:'https://logo.clearbit.com/qnb.com' },
-                    'First Abu Dhabi Bank (FAB)':     { abbr:'FAB',  color:'#b8860b', grad:'linear-gradient(135deg,#b8860b 0%,#7a5800 100%)', logo:'https://logo.clearbit.com/bankfab.com' },
-                    'Saudi National Bank (SNB)':      { abbr:'SNB',  color:'#00563f', grad:'linear-gradient(135deg,#00563f 0%,#003828 100%)', logo:'https://logo.clearbit.com/alahli.com' },
-                    'Kuwait Finance House (KFH)':     { abbr:'KFH',  color:'#006400', grad:'linear-gradient(135deg,#006400 0%,#004200 100%)', logo:'https://logo.clearbit.com/kfh.com' },
-                    'Bank Muscat':                    { abbr:'BM',   color:'#cc0000', grad:'linear-gradient(135deg,#cc0000 0%,#880000 100%)', logo:'https://logo.clearbit.com/bankmuscat.com' },
-                    'National Bank of Bahrain (NBB)': { abbr:'NBB',  color:'#003366', grad:'linear-gradient(135deg,#003366 0%,#001f44 100%)', logo:'https://logo.clearbit.com/nbbonline.com' },
-                    'Landdop':                        { abbr:'LD',   color:'#4f46e5', grad:'linear-gradient(135deg,#4f46e5 0%,#3730a3 100%)', logo:null },
-                  };
-                  var fallbackBanks = ['HSBC','Standard Chartered','Landdop'];
-                  var availableBanks = (countryBanks && countryBanks[loan.country]) ? countryBanks[loan.country] : fallbackBanks;
-                %>
-                <div class="bank-grid">
-                  <% availableBanks.forEach(function(bank) { var m = bankMeta[bank] || {abbr: bank.substring(0,3).toUpperCase(), color:'#334155', grad:'linear-gradient(135deg,#334155 0%,#1e293b 100%)', logo:null}; %>
-                    <form action="/user/loans/<%= loan.id %>/select-bank" method="POST">
-                      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                      <input type="hidden" name="bank" value="<%= bank %>">
-                      <button type="submit" class="bank-card" style="--bgrad:<%- m.grad %>; --bcolor:<%= m.color %>;">
-                        <div class="bank-card-strip">
-                          <% if (m.logo) { %>
-                            <img src="<%= m.logo %>" alt="<%= bank %> logo" class="bank-card-logo"
-                                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                            <span class="bank-card-abbr" style="display:none"><%= m.abbr %></span>
-                          <% } else { %>
-                            <span class="bank-card-abbr"><%= m.abbr %></span>
-                          <% } %>
-                        </div>
-                        <div class="bank-card-body">
-                          <span class="bank-card-name"><%= bank %></span>
-                          <span class="bank-card-action">Select →</span>
-                        </div>
-                      </button>
-                    </form>
-                  <% }) %>
+                <button type="button" class="btn btn-primary btn-bank-trigger" data-loan="<%= loan.id %>">
+                  Select a Bank to Receive Funds →
+                </button>
+
+                <!-- Bank selection modal for loan <%= loan.id %> -->
+                <div class="bank-modal-overlay" id="bank-modal-<%= loan.id %>" style="display:none;">
+                  <div class="bank-modal">
+                    <div class="bank-modal-header">
+                      <div>
+                        <div class="bank-modal-title">Choose Your Bank</div>
+                        <div class="bank-modal-sub">Select a bank in <strong><%= loan.country || 'your region' %></strong> offering your approved loan</div>
+                      </div>
+                      <button type="button" class="bank-modal-close" data-loan="<%= loan.id %>">✕</button>
+                    </div>
+
+                    <%
+                      var bankMeta = {
+                        'HSBC':                           { abbr:'HSBC', color:'#db0011', bg:'#fff0f0', logo:'https://logo.clearbit.com/hsbc.com' },
+                        'Standard Chartered':              { abbr:'SC',   color:'#0a6a35', bg:'#f0fff4', logo:'https://logo.clearbit.com/sc.com' },
+                        'Qatari National Bank (QNB)':     { abbr:'QNB',  color:'#8b1a2f', bg:'#fff0f2', logo:'https://logo.clearbit.com/qnb.com' },
+                        'First Abu Dhabi Bank (FAB)':     { abbr:'FAB',  color:'#b8860b', bg:'#fffbf0', logo:'https://logo.clearbit.com/bankfab.com' },
+                        'Saudi National Bank (SNB)':      { abbr:'SNB',  color:'#00563f', bg:'#f0fff8', logo:'https://logo.clearbit.com/alahli.com' },
+                        'Kuwait Finance House (KFH)':     { abbr:'KFH',  color:'#006400', bg:'#f0fff0', logo:'https://logo.clearbit.com/kfh.com' },
+                        'Bank Muscat':                    { abbr:'BM',   color:'#cc0000', bg:'#fff0f0', logo:'https://logo.clearbit.com/bankmuscat.com' },
+                        'National Bank of Bahrain (NBB)': { abbr:'NBB',  color:'#003366', bg:'#f0f4ff', logo:'https://logo.clearbit.com/nbbonline.com' },
+                        'St. Georges Trust Bank':         { abbr:'SGTB', color:'#5b21b6', bg:'#f5f0ff', logo:'/images/stgeorges-logo.jpg' },
+                      };
+                      var fallbackBanks = ['HSBC', 'Standard Chartered', 'St. Georges Trust Bank'];
+                      var availableBanks = (countryBanks && countryBanks[loan.country]) ? countryBanks[loan.country] : fallbackBanks;
+                    %>
+
+                    <div class="bank-modal-grid">
+                      <% availableBanks.forEach(function(bank) {
+                           var m = bankMeta[bank] || { abbr: bank.substring(0,3).toUpperCase(), color:'#334155', bg:'#f8fafc', logo:null };
+                      %>
+                        <form action="/user/loans/<%= loan.id %>/select-bank" method="POST">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                          <input type="hidden" name="bank" value="<%= bank %>">
+                          <button type="submit" class="bank-offer-card" style="--bc:<%= m.color %>; --bbg:<%= m.bg %>;">
+                            <div class="boc-logo-wrap" style="background:<%= m.bg %>;">
+                              <% if (m.logo) { %>
+                                <img src="<%= m.logo %>" alt="<%= bank %>" class="boc-logo"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                <span class="boc-abbr" style="display:none;color:<%= m.color %>"><%= m.abbr %></span>
+                              <% } else { %>
+                                <span class="boc-abbr" style="color:<%= m.color %>"><%= m.abbr %></span>
+                              <% } %>
+                            </div>
+                            <div class="boc-info">
+                              <span class="boc-name"><%= bank %></span>
+                              <span class="boc-tagline">Offering your approved loan</span>
+                            </div>
+                            <span class="boc-btn" style="background:<%= m.color %>;">Apply</span>
+                          </button>
+                        </form>
+                      <% }) %>
+                    </div>
+                  </div>
                 </div>
               <% } else if (loan.status === 'approved' && loan.selected_bank) { %>
                 <div class="dash-loan-msg dash-msg--approved">✅ Approved — funds will be sent to <strong><%= loan.selected_bank %></strong>. Our team is processing your disbursement.</div>
@@ -250,3 +270,36 @@
 
   </main>
 </div>
+
+<script>
+(function () {
+  // Open modal
+  document.querySelectorAll('.btn-bank-trigger').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-loan');
+      var modal = document.getElementById('bank-modal-' + id);
+      if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    });
+  });
+  // Close modal — X button or overlay click
+  document.querySelectorAll('.bank-modal-close').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var id = btn.getAttribute('data-loan');
+      var modal = document.getElementById('bank-modal-' + id);
+      if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
+    });
+  });
+  document.querySelectorAll('.bank-modal-overlay').forEach(function (overlay) {
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) { overlay.style.display = 'none'; document.body.style.overflow = ''; }
+    });
+  });
+  // Auto-open modal if there's a flash error (bank rejected) so user can pick again
+  <% if (error && error.length) { %>
+  <% loans.forEach(function(loan) { if (loan.status === 'approved' && !loan.selected_bank) { %>
+    var autoModal = document.getElementById('bank-modal-<%= loan.id %>');
+    if (autoModal) { autoModal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  <% } }) %>
+  <% } %>
+})();
+</script>
