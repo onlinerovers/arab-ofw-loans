@@ -168,7 +168,7 @@
                   🎉 Your loan has been approved! Banks in <strong><%= loan.country || 'your region' %></strong> are ready to fund you — tap one below to proceed.
                 </div>
                 <button type="button" class="btn btn-primary btn-bank-trigger" data-loan="<%= loan.id %>">
-                  Select a Bank to Receive Funds →
+                  Proceed →
                 </button>
 
                 <!-- Bank selection modal for loan <%= loan.id %> -->
@@ -201,28 +201,28 @@
                     <div class="bank-modal-grid">
                       <% availableBanks.forEach(function(bank) {
                            var m = bankMeta[bank] || { abbr: bank.substring(0,3).toUpperCase(), color:'#334155', bg:'#f8fafc', logo:null };
-                      %>
-                        <form action="/user/loans/<%= loan.id %>/select-bank" method="POST">
-                          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                          <input type="hidden" name="bank" value="<%= bank %>">
-                          <button type="submit" class="bank-offer-card" style="--bc:<%= m.color %>; --bbg:<%= m.bg %>;">
-                            <div class="boc-logo-wrap" style="background:<%= m.bg %>;">
-                              <% if (m.logo) { %>
-                                <img src="<%= m.logo %>" alt="<%= bank %>" class="boc-logo"
-                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                                <span class="boc-abbr" style="display:none;color:<%= m.color %>"><%= m.abbr %></span>
-                              <% } else { %>
-                                <span class="boc-abbr" style="color:<%= m.color %>"><%= m.abbr %></span>
-                              <% } %>
-                            </div>
-                            <div class="boc-info">
-                              <span class="boc-name"><%= bank %></span>
-                              <span class="boc-tagline">Offering your approved loan</span>
-                            </div>
-                            <span class="boc-btn" style="background:<%= m.color %>;">Apply</span>
-                          </button>
-                        </form>
-                      <% }) %>
+                       %>
+                         <form action="/user/loans/<%= loan.id %>/select-bank" method="POST">
+                           <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                           <input type="hidden" name="bank" value="<%= bank %>">
+                           <button type="submit" class="bank-offer-card" style="--bc:<%= m.color %>; --bbg:<%= m.bg %>;">
+                             <div class="boc-logo-wrap" style="background:<%= m.bg %>;">
+                               <% if (m.logo) { %>
+                                 <img src="<%= m.logo %>" alt="<%= bank %>" class="boc-logo"
+                                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                 <span class="boc-abbr" style="display:none;color:<%= m.color %>"><%= m.abbr %></span>
+                               <% } else { %>
+                                 <span class="boc-abbr" style="color:<%= m.color %>"><%= m.abbr %></span>
+                               <% } %>
+                             </div>
+                             <div class="boc-info">
+                               <span class="boc-name"><%= bank %></span>
+                               <span class="boc-tagline">Offering your approved loan</span>
+                             </div>
+                             <span class="boc-btn" style="background:<%= m.color %>;">Apply</span>
+                           </button>
+                         </form>
+                       <% }) %>
                     </div>
                   </div>
                 </div>
