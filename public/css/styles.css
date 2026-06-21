@@ -1631,30 +1631,162 @@ dd a:hover { text-decoration: underline; }
   .boc-btn { font-size:.72rem; padding:.38rem .7rem; }
 }
 
+/* ── Hamburger nav button ────────────────────────────────────── */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text);
+  flex-shrink: 0;
+}
+
 /* ── Global nav responsive ──────────────────────────────────── */
 @media(max-width:768px){
-  .nav-links { display:none; }
-  .nav-container { padding:0 1rem; }
-  .hero-title { font-size:2rem; }
-  .hero-subtitle { font-size:1rem; }
-  .apply-grid { grid-template-columns:1fr; }
-  .apply-sidebar { display:none; }
-  .field-card { padding:1.25rem 1rem; }
-  .step-nav { flex-direction:column; gap:.6rem; }
-  .step-nav .btn { width:100%; }
-  .stats-grid { grid-template-columns:1fr 1fr; }
-  .waitlist-table-wrap { overflow-x:auto; }
-  .modal-box { margin:1rem; padding:1.25rem; border-radius:12px; }
-  .schedule-table-wrap { overflow-x:auto; }
+  .nav-hamburger { display: flex; }
+
+  .main-nav {
+    display: none;
+    position: absolute;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: .5rem 0;
+    z-index: 200;
+    box-shadow: var(--shadow);
+  }
+  .main-nav.nav-open { display: flex; }
+
+  .main-nav a,
+  .main-nav form,
+  .main-nav .admin-dropdown {
+    width: 100%;
+  }
+  .main-nav > a {
+    padding: .75rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+    font-size: .95rem;
+  }
+  .main-nav > a:last-of-type { border-bottom: none; }
+  .main-nav form { padding: .5rem 1.25rem; }
+  .main-nav .btn { width: 100%; text-align: center; margin: .25rem 0; border-radius: 8px; }
+  .main-nav .admin-dropdown { padding: .5rem 1.25rem; }
+  .main-nav .admin-dropdown-toggle { width: 100%; justify-content: space-between; }
+  .main-nav .admin-dropdown-menu {
+    position: static;
+    box-shadow: none;
+    border: 1px solid var(--color-border);
+    margin-top: .5rem;
+    border-radius: 8px;
+  }
+  .notif-bell { padding: .75rem 1.25rem; }
+
+  .header-inner { position: relative; }
+
+  /* hero */
+  .hero { padding: 3rem 0 2.5rem; }
+  .hero h1 { font-size: clamp(1.6rem, 6vw, 2.4rem); }
+  .hero-subtitle { font-size: .95rem; }
+  .hero-actions { flex-direction: column; align-items: center; gap: .75rem; }
+  .btn-hero, .btn-hero-ghost { width: 100%; max-width: 300px; justify-content: center; }
+  .hero-trust { gap: 1rem; }
+  .trust-item { font-size: .8rem; }
+
+  /* apply form */
+  .apply-layout { grid-template-columns: 1fr; }
+  .apply-sidebar { display: none; }
+  .field-card { padding: 1.25rem 1rem; }
+  .step-nav { flex-direction: column; gap: .6rem; }
+  .step-nav .btn { width: 100%; }
+  .step-progress { padding: .75rem 1rem; }
+  .step-label { font-size: .65rem; }
+
+  /* waitlist / stats */
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .waitlist-table-wrap { overflow-x: auto; }
+  .section-header h2 { font-size: 1.5rem; }
+
+  /* modal */
+  .modal-box { margin: 1rem; border-radius: 12px; }
+  .schedule-table-wrap { overflow-x: auto; }
+
+  /* admin dashboard */
+  .dashboard-header-inner { flex-direction: column; align-items: flex-start; gap: .75rem; }
+  .dashboard-header-inner > div:last-child { width: 100%; justify-content: flex-start; }
+  .dashboard-stats .stats-grid { grid-template-columns: repeat(3, 1fr); }
+  .dashboard-toolbar { flex-direction: column; align-items: flex-start; gap: .75rem; }
+  .filter-bar { flex-direction: column; align-items: flex-start; gap: .5rem; }
+  .filter-links { flex-wrap: wrap; gap: .4rem; }
+  .search-form { width: 100%; flex-wrap: wrap; }
+  .search-form input { flex: 1; min-width: 0; }
+
+  /* admin table — card layout on mobile */
+  .data-table thead { display: none; }
+  .data-table, .data-table tbody, .data-table tr, .data-table td { display: block; width: 100%; }
+  .data-table tr {
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    margin-bottom: .75rem;
+    padding: .85rem 1rem;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+  }
+  .data-table tr:last-child { border-bottom: 1px solid var(--color-border); }
+  .data-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .35rem 0;
+    border: none;
+    font-size: .875rem;
+  }
+  .data-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: .75rem;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    flex-shrink: 0;
+    margin-right: .75rem;
+  }
+  .data-table td.actions-col { justify-content: flex-end; }
+  .data-table td.actions-col::before { display: none; }
+  .data-table .empty-row { text-align: center; display: block; }
+  .data-table .empty-row::before { display: none; }
+
+  /* auth */
+  .auth-card { padding: 1.75rem 1.25rem; }
+
+  /* loan detail */
+  .ld-grid { grid-template-columns: 1fr; }
 }
 
 @media(max-width:480px){
-  .hero-title { font-size:1.6rem; }
-  .stats-grid { grid-template-columns:1fr; }
-  .step-indicators { gap:.25rem; }
-  .step-dot { width:28px; height:28px; font-size:.75rem; }
-  .step-label { display:none; }
-  h2 { font-size:1.4rem; }
+  .container { padding: 0 1rem; }
+  .hero h1 { font-size: 1.5rem; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .dashboard-stats .stats-grid { grid-template-columns: 1fr 1fr; }
+  .step-progress { gap: 0; }
+  .step-label { display: none; }
+  h2 { font-size: 1.3rem; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .auth-form, .auth-card { padding: 1.5rem 1rem; }
+  .form-row { grid-template-columns: 1fr; }
+  .purpose-grid { grid-template-columns: repeat(2, 1fr); }
+  .doc-grid { grid-template-columns: 1fr; }
+  .filter-links a { padding: .3rem .65rem; font-size: .75rem; }
 }
 
 /* ── Bank modal loader overlay ────────────────────────────── */

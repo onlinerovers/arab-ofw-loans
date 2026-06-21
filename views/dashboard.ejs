@@ -90,25 +90,25 @@
           <% if (loans && loans.length) { %>
             <% loans.forEach(function(loan) { %>
               <tr class="summary-row">
-                <td><a href="/admin/loans/<%= loan.id %>"><%= loan.reference_number %></a></td>
-                <td>
-                  <strong><%= loan.full_name %></strong><br>
-                  <small class="text-muted"><%= loan.email %></small>
+                <td data-label="Reference"><a href="/admin/loans/<%= loan.id %>"><%= loan.reference_number %></a></td>
+                <td data-label="Applicant">
+                  <span><strong><%= loan.full_name %></strong><br>
+                  <small class="text-muted"><%= loan.email %></small></span>
                 </td>
-                <td><%= Number(loan.amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) %></td>
-                <td><%= loan.loan_term_months ? loan.loan_term_months + ' mo' : '—' %></td>
-                <td>
+                <td data-label="Amount"><%= Number(loan.amount).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) %></td>
+                <td data-label="Term"><%= loan.loan_term_months ? loan.loan_term_months + ' mo' : '—' %></td>
+                <td data-label="Purpose">
                   <% const purposeLabels = {
                     business: 'Business', education: 'Education', medical: 'Medical', home: 'Home', vehicle: 'Vehicle', debt: 'Debt', personal: 'Personal', other: 'Other'
                   }; %>
                   <%= purposeLabels[loan.purpose] || (loan.purpose ? loan.purpose.charAt(0).toUpperCase() + loan.purpose.slice(1) : '—') %>
                 </td>
-                <td>
+                <td data-label="Status">
                   <span class="status-badge status-<%= loan.status %>">
                     <%= loan.status.charAt(0).toUpperCase() + loan.status.slice(1) %>
                   </span>
                 </td>
-                <td><%= new Date(loan.applied_at).toLocaleDateString() %></td>
+                <td data-label="Applied"><%= new Date(loan.applied_at).toLocaleDateString() %></td>
                 <td class="actions-col">
                   <div class="action-group">
                     <a href="/admin/loans/<%= loan.id %>" class="btn btn-sm btn-secondary">Open</a>

@@ -16,7 +16,8 @@
       <a href="/" class="logo">
         <img src="/logo.jpeg" alt="<%= appName %>" class="logo-img">
       </a>
-      <nav class="main-nav">
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">☰</button>
+      <nav class="main-nav" id="main-nav">
         <a href="/">Home</a>
         <% if (currentUser && !admin) { %>
           <a href="/#apply">Apply</a>
@@ -58,6 +59,11 @@
           </div>
         <% } %>
       </nav>
+      <script>
+        document.getElementById('nav-hamburger').addEventListener('click', function(){
+          document.getElementById('main-nav').classList.toggle('nav-open');
+        });
+      </script>
     </div>
   </header>
 
