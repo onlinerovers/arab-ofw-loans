@@ -30,8 +30,9 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:'],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrcAttr: ["'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'https://logo.clearbit.com'],
     },
   },
 }));
