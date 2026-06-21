@@ -137,6 +137,9 @@ async function disburseToWallet(loanId, adminId) {
   );
 }
 
+// ── Root redirect ─────────────────────────────────────────────
+router.get('/', (req, res) => res.redirect('/admin/dashboard'));
+
 // ── Auth ──────────────────────────────────────────────────────
 router.get('/login', redirectIfAuthenticated, (req, res) => {
   res.render('login', { title: 'Admin Login', csrfToken: req.csrfToken(), error: req.flash('error') });
