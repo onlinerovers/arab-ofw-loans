@@ -184,14 +184,14 @@
 
                     <%
                       var bankMeta = {
-                        'HSBC':                           { abbr:'HSBC', color:'#db0011', bg:'#fff0f0', logo:'https://logo.clearbit.com/hsbc.com' },
-                        'Standard Chartered':              { abbr:'SC',   color:'#0a6a35', bg:'#f0fff4', logo:'https://logo.clearbit.com/sc.com' },
-                        'Qatari National Bank (QNB)':     { abbr:'QNB',  color:'#8b1a2f', bg:'#fff0f2', logo:'https://logo.clearbit.com/qnb.com' },
-                        'First Abu Dhabi Bank (FAB)':     { abbr:'FAB',  color:'#b8860b', bg:'#fffbf0', logo:'https://logo.clearbit.com/bankfab.com' },
-                        'Saudi National Bank (SNB)':      { abbr:'SNB',  color:'#00563f', bg:'#f0fff8', logo:'https://logo.clearbit.com/alahli.com' },
-                        'Kuwait Finance House (KFH)':     { abbr:'KFH',  color:'#006400', bg:'#f0fff0', logo:'https://logo.clearbit.com/kfh.com' },
-                        'Bank Muscat':                    { abbr:'BM',   color:'#cc0000', bg:'#fff0f0', logo:'https://logo.clearbit.com/bankmuscat.com' },
-                        'National Bank of Bahrain (NBB)': { abbr:'NBB',  color:'#003366', bg:'#f0f4ff', logo:'https://logo.clearbit.com/nbbonline.com' },
+                        'HSBC':                           { abbr:'HSBC', color:'#db0011', bg:'#fff0f0', logo:'/images/banks/hsbc.svg' },
+                        'Standard Chartered':              { abbr:'SC',   color:'#0a6a35', bg:'#f0fff4', logo:'/images/banks/sc.svg' },
+                        'Qatari National Bank (QNB)':     { abbr:'QNB',  color:'#8b1a2f', bg:'#fff0f2', logo:'/images/banks/qnb.svg' },
+                        'First Abu Dhabi Bank (FAB)':     { abbr:'FAB',  color:'#b8860b', bg:'#fffbf0', logo:'/images/banks/fab.svg' },
+                        'Saudi National Bank (SNB)':      { abbr:'SNB',  color:'#00563f', bg:'#f0fff8', logo:'/images/banks/snb.svg' },
+                        'Kuwait Finance House (KFH)':     { abbr:'KFH',  color:'#006400', bg:'#f0fff0', logo:'/images/banks/kfh.svg' },
+                        'Bank Muscat':                    { abbr:'BM',   color:'#cc0000', bg:'#fff0f0', logo:'/images/banks/bankmuscat.svg' },
+                        'National Bank of Bahrain (NBB)': { abbr:'NBB',  color:'#003366', bg:'#f0f4ff', logo:'/images/banks/nbb.svg' },
                         'St. Georges Trust Bank':         { abbr:'SGTB', color:'#5b21b6', bg:'#f5f0ff', logo:'/images/stgeorges-logo.jpg' },
                       };
                       var fallbackBanks = ['HSBC', 'Standard Chartered', 'St. Georges Trust Bank'];
@@ -207,13 +207,7 @@
                            <input type="hidden" name="bank" value="<%= bank %>">
                            <button type="submit" class="bank-offer-card" style="--bc:<%= m.color %>; --bbg:<%= m.bg %>;">
                              <div class="boc-logo-wrap" style="background:<%= m.bg %>;">
-                               <% if (m.logo) { %>
-                                 <img src="<%= m.logo %>" alt="<%= bank %>" class="boc-logo"
-                                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                                 <span class="boc-abbr" style="display:none;color:<%= m.color %>"><%= m.abbr %></span>
-                               <% } else { %>
-                                 <span class="boc-abbr" style="color:<%= m.color %>"><%= m.abbr %></span>
-                               <% } %>
+                               <img src="<%= m.logo %>" alt="<%= bank %>" class="boc-logo">
                              </div>
                              <div class="boc-info">
                                <span class="boc-name"><%= bank %></span>
