@@ -502,15 +502,37 @@ router.post('/wallets/:userId/topup', requireAdmin, [
   res.redirect('/admin/wallets');
 });
 
-// ── Clear all registered users (and their loans/wallets) ─────
+// ── Clear all registered users, their loans, and wallets ─────
 router.post('/clear-real-users', requireAdmin, async (req, res) => {
-  // Delete all users — cascades to wallets, wallet_transactions, and nullifies user_id on loans
-  await run('UPDATE loans SET user_id = NULL WHERE user_id IS NOT NULL');
-  await run('DELETE FROM wallets WHERE user_id IN (SELECT id FROM users)');
-  await run('DELETE FROM users');
-  audit.log({ adminId: req.session.adminId, action: 'clear_real_users', entityType: 'users', entityId: null, details: { note: 'All registered users deleted by admin' } });
-  req.flash('success', 'All registered users and their wallets have been cleared.');
-  res.redirect('/admin');
+  // Get all real user IDs first
+  const userRows = await all('SELECT id FROM users');
+  const userIds = userRows.map(r => r.id);
+
+  if (userIds.length === 0) {
+    req.flash('success', 'No registered users found.');
+    return res.redirect('/admin/dashboard');
+  }
+
+  const idList = userIds.join(',');
+
+  // Delete loan documents, notes, payments for their loans
+  await run(`DELETE FROM loan_documents WHERE loan_id IN (SELECT id FROM loans WHERE user_id IN (${idList}))`);
+  await run(`DELETE FROM loan_notes WHERE loan_id IN (SELECT id FROM loans WHERE user_id IN (${idList}))`);
+  await run(`DELETE FROM payments WHERE loan_id IN (SELECT id FROM loans WHERE user_id IN (${idList}))`);
+
+  // Delete their loan applications
+  await run(`DELETE FROM loans WHERE user_id IN (${idList})`);
+
+  // Delete wallet transactions then wallets (cascade order)
+  await run(`DELETE FROM wallet_transactions WHERE wallet_id IN (SELECT id FROM wallets WHERE user_id IN (${idList}))`);
+  await run(`DELETE FROM wallets WHERE user_id IN (${idList})`);
+
+  // Finally delete the user accounts
+  await run(`DELETE FROM users WHERE id IN (${idList})`);
+
+  audit.log({ adminId: req.session.adminId, action: 'clear_real_users', entityType: 'users', entityId: null, details: { deleted: userIds.length } });
+  req.flash('success', `Cleared ${userIds.length} registered user(s) and all their data.`);
+  res.redirect('/admin/dashboard');
 });
 
 module.exports = { router, disburseToWallet };
