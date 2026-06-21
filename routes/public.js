@@ -79,9 +79,17 @@ router.get('/', async (req, res) => {
   const stats = await getWaitlistStats();
   const csrfToken = req.csrfToken();
   const interestRate = parseFloat(settings.get('interest_rate', '0')) || 0;
+
+  // Pre-fill form with logged-in user's details
+  let formData = {};
+  if (req.session.userId) {
+    const user = await one('SELECT full_name, email FROM users WHERE id = $1', [req.session.userId]);
+    if (user) formData = { full_name: user.full_name, email: user.email };
+  }
+
   res.render('index', {
     title: 'Apply for a Loan',
-    stats, csrfToken, interestRate,
+    stats, csrfToken, interestRate, formData,
     success: req.flash('success'),
     error: req.flash('error'),
   });
