@@ -267,33 +267,73 @@
 
 <script>
 (function () {
-  // Open modal
+  // ── Modal open/close ──────────────────────────────────────
+  function openModal(id) {
+    var m = document.getElementById('bank-modal-' + id);
+    if (m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  }
+  function closeModal(id) {
+    var m = document.getElementById('bank-modal-' + id);
+    if (m) {
+      m.style.display = 'none';
+      document.body.style.overflow = '';
+      clearToast(m);
+    }
+  }
+
   document.querySelectorAll('.btn-bank-trigger').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var id = btn.getAttribute('data-loan');
-      var modal = document.getElementById('bank-modal-' + id);
-      if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-    });
+    btn.addEventListener('click', function () { openModal(btn.getAttribute('data-loan')); });
   });
-  // Close modal — X button or overlay click
   document.querySelectorAll('.bank-modal-close').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var id = btn.getAttribute('data-loan');
-      var modal = document.getElementById('bank-modal-' + id);
-      if (modal) { modal.style.display = 'none'; document.body.style.overflow = ''; }
-    });
+    btn.addEventListener('click', function () { closeModal(btn.getAttribute('data-loan')); });
   });
   document.querySelectorAll('.bank-modal-overlay').forEach(function (overlay) {
     overlay.addEventListener('click', function (e) {
-      if (e.target === overlay) { overlay.style.display = 'none'; document.body.style.overflow = ''; }
+      if (e.target === overlay) {
+        var id = overlay.id.replace('bank-modal-', '');
+        closeModal(id);
+      }
     });
   });
-  // Auto-open modal if there's a flash error (bank rejected) so user can pick again
-  <% if (error && error.length) { %>
-  <% loans.forEach(function(loan) { if (loan.status === 'approved' && !loan.selected_bank) { %>
-    var autoModal = document.getElementById('bank-modal-<%= loan.id %>');
-    if (autoModal) { autoModal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-  <% } }) %>
-  <% } %>
+
+  // ── Toast inside modal ────────────────────────────────────
+  function showToast(modal, msg) {
+    clearToast(modal);
+    var t = document.createElement('div');
+    t.className = 'bank-modal-toast';
+    t.textContent = msg;
+    modal.querySelector('.bank-modal').prepend(t);
+    // auto-dismiss after 6s
+    setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 6000);
+  }
+  function clearToast(modal) {
+    var old = modal.querySelector('.bank-modal-toast');
+    if (old) old.parentNode.removeChild(old);
+  }
+
+  // ── Intercept bank selection forms with fetch ─────────────
+  document.querySelectorAll('.bank-modal-grid form').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var overlay = form.closest('.bank-modal-overlay');
+      var data = new FormData(form);
+      fetch(form.action, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: new URLSearchParams(data),
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        if (json.redirect) {
+          window.location.href = json.redirect;
+        } else if (json.error) {
+          showToast(overlay, json.error);
+        }
+      })
+      .catch(function () {
+        showToast(overlay, 'Something went wrong. Please try again.');
+      });
+    });
+  });
 })();
 </script>

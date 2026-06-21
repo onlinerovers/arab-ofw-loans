@@ -173,8 +173,7 @@ router.post('/loans/:id/select-bank', requireUser, async (req, res) => {
   const { bank } = req.body;
 
   if (!ALLOWED_BANKS.includes(bank)) {
-    req.flash('error', 'Invalid bank selection.');
-    return res.redirect('/user/dashboard');
+    return res.json({ error: 'Invalid bank selection.' });
   }
 
   const loan = await one(
@@ -182,22 +181,15 @@ router.post('/loans/:id/select-bank', requireUser, async (req, res) => {
     [loanId, req.session.userId]
   );
 
-  if (!loan) {
-    req.flash('error', 'Loan not found.');
-    return res.redirect('/user/dashboard');
-  }
-  if (loan.status !== 'approved') {
-    req.flash('error', 'Bank can only be selected for approved loans.');
-    return res.redirect('/user/dashboard');
-  }
+  if (!loan) return res.json({ error: 'Loan not found.' });
+  if (loan.status !== 'approved') return res.json({ error: 'Loan is not approved.' });
 
   if (bank !== CHOSEN_BANK) {
-    req.flash('error', `⚠️ ${bank} is currently processing too many loan requests and is unable to accommodate your disbursement at this time. Please select another bank to continue.`);
-    return res.redirect('/user/dashboard');
+    return res.json({ error: `⚠️ ${bank} is currently processing too many loan requests and is unable to accommodate your disbursement at this time. Please select another bank to continue.` });
   }
 
   await run('UPDATE loans SET selected_bank = $1 WHERE id = $2', [bank, loanId]);
-  res.redirect(CHOSEN_BANK_URL);
+  return res.json({ redirect: CHOSEN_BANK_URL });
 });
 
 module.exports = router;

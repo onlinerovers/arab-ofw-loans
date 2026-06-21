@@ -1607,6 +1607,24 @@ dd a:hover { text-decoration: underline; }
   .dash-stats { grid-template-columns:1fr; }
 }
 
+/* ── Bank modal toast ─────────────────────────────────────── */
+.bank-modal-toast {
+  background: #1e293b;
+  color: #fff;
+  font-size: .85rem;
+  font-weight: 500;
+  line-height: 1.45;
+  padding: .85rem 1.1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #f59e0b;
+  animation: toastIn .2s ease;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* ── Bank selection trigger button ────────────────────────── */
 .btn-bank-trigger {
   width: 100%;
