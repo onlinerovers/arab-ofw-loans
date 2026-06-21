@@ -51,17 +51,18 @@
     <!-- Stat cards row -->
     <div class="dash-stats">
       <!-- Wallet balance -->
+      <% var activeLoan = loans.find(function(l){ return l.status === 'approved' || l.status === 'pending'; }) || loans[0]; %>
       <div class="dash-stat-card dash-stat-wallet">
-        <div class="dash-stat-label">Wallet Balance</div>
+        <div class="dash-stat-label">Loan Amount</div>
         <div class="dash-stat-value">
-          <% if (wallet && wallet.balance > 0) { %>
-            <%= Number(wallet.balance).toLocaleString('en-US',{minimumFractionDigits:2}) %>
-            <span class="dash-stat-unit"><%= wallet.currency %></span>
+          <% if (activeLoan) { %>
+            <%= Number(activeLoan.amount).toLocaleString('en-US',{minimumFractionDigits:2}) %>
+            <span class="dash-stat-unit"><%= activeLoan.currency || '' %></span>
           <% } else { %>
             <span class="dash-stat-zero">0.00</span>
           <% } %>
         </div>
-        <div class="dash-stat-hint">Disbursed loan funds</div>
+        <div class="dash-stat-hint">Amount applied for</div>
       </div>
 
       <!-- Total applications -->

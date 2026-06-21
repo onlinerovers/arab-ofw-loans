@@ -499,4 +499,15 @@ router.post('/wallets/:userId/topup', requireAdmin, [
   res.redirect('/admin/wallets');
 });
 
+// ── Clear all registered users (and their loans/wallets) ─────
+router.post('/clear-real-users', requireAdmin, async (req, res) => {
+  // Delete all users — cascades to wallets, wallet_transactions, and nullifies user_id on loans
+  await run('UPDATE loans SET user_id = NULL WHERE user_id IS NOT NULL');
+  await run('DELETE FROM wallets WHERE user_id IN (SELECT id FROM users)');
+  await run('DELETE FROM users');
+  audit.log({ adminId: req.session.adminId, action: 'clear_real_users', entityType: 'users', entityId: null, details: { note: 'All registered users deleted by admin' } });
+  req.flash('success', 'All registered users and their wallets have been cleared.');
+  res.redirect('/admin');
+});
+
 module.exports = { router, disburseToWallet };

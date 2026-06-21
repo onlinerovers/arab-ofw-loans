@@ -1,4 +1,7 @@
-﻿<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#0a6a35"/>
-  <text x="32" y="32" font-family="Arial,sans-serif" font-size="16" font-weight="800" fill="#fff" text-anchor="middle" dominant-baseline="central" letter-spacing="1">SC</text>
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60" width="120" height="60">
+  <rect width="120" height="60" fill="#fff"/>
+  <path d="M12,38 Q8,28 14,20 Q20,12 28,16 Q22,20 24,28 Q26,36 34,36 Q42,36 42,28 Q42,20 34,16" stroke="#0a7a3e" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M20,44 Q24,52 32,48 Q38,44 36,36 Q34,28 26,28 Q18,28 18,36 Q18,44 26,44" stroke="#1e7fc0" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <text x="50" y="28" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#333">standard</text>
+  <text x="50" y="42" font-family="Arial,sans-serif" font-size="10" font-weight="700" fill="#333">chartered</text>
 </svg>

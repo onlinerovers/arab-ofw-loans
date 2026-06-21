@@ -1593,18 +1593,68 @@ dd a:hover { text-decoration: underline; }
 .dash-txn-amt--credit { color:#10b981; }
 .dash-txn-amt--debit  { color:#ef4444; }
 
+/* ── Dashboard responsive ─── tablet (≤900px) ──────────────── */
 @media(max-width:900px){
   .dash-wrap { flex-direction:column; }
-  .dash-sidebar { width:100%; flex-direction:row; flex-wrap:wrap; padding:.75rem 1rem; border-right:none; border-bottom:1px solid var(--color-border); }
-  .dash-sidebar-top { border-bottom:none; padding:0 1rem 0 0; margin-bottom:0; display:flex; align-items:center; gap:.75rem; }
-  .dash-avatar { width:36px; height:36px; font-size:.85rem; margin-bottom:0; }
-  .dash-nav { flex-direction:row; flex:unset; padding:0; }
+  .dash-sidebar {
+    width:100%; flex-direction:row; flex-wrap:wrap; align-items:center;
+    padding:.75rem 1rem; gap:.75rem;
+    border-right:none; border-bottom:1px solid var(--color-border);
+  }
+  .dash-sidebar-top { border-bottom:none; padding:0; margin-bottom:0; display:flex; align-items:center; gap:.6rem; flex:1; }
+  .dash-avatar { width:36px; height:36px; font-size:.85rem; margin-bottom:0; flex-shrink:0; }
+  .dash-user-info { display:flex; flex-direction:column; }
+  .dash-nav { flex-direction:row; flex:unset; padding:0; gap:.25rem; }
+  .dash-nav-item { padding:.45rem .75rem; font-size:.82rem; }
   .dash-sidebar-bottom { border-top:none; margin-top:0; padding:0; }
   .dash-main { padding:1.25rem 1rem; }
   .dash-stats { grid-template-columns:1fr 1fr; }
+  .dash-page-header { flex-direction:column; align-items:flex-start; gap:.75rem; }
+  .dash-page-header .btn { width:100%; text-align:center; }
 }
+
+/* ── Dashboard responsive ─── mobile (≤560px) ──────────────── */
 @media(max-width:560px){
-  .dash-stats { grid-template-columns:1fr; }
+  .dash-stats { grid-template-columns:1fr 1fr; gap:.6rem; }
+  .dash-stat-card { padding:1rem; }
+  .dash-stat-value { font-size:1.4rem; }
+  .dash-loan-top { flex-direction:column; gap:.35rem; }
+  .dash-loan-body .dash-loan-amount { font-size:1.4rem; }
+  .dash-loan-meta { flex-wrap:wrap; gap:.35rem; }
+  .dash-timeline { gap:0; }
+  .dash-section-header { flex-direction:column; align-items:flex-start; gap:.5rem; }
+  .dash-page-title { font-size:1.3rem; }
+  .bank-grid { grid-template-columns:1fr; }
+  .bank-modal-grid { gap:.6rem; }
+  .boc-logo-wrap { width:42px; height:42px; }
+  .boc-name { font-size:.82rem; }
+  .boc-btn { font-size:.72rem; padding:.38rem .7rem; }
+}
+
+/* ── Global nav responsive ──────────────────────────────────── */
+@media(max-width:768px){
+  .nav-links { display:none; }
+  .nav-container { padding:0 1rem; }
+  .hero-title { font-size:2rem; }
+  .hero-subtitle { font-size:1rem; }
+  .apply-grid { grid-template-columns:1fr; }
+  .apply-sidebar { display:none; }
+  .field-card { padding:1.25rem 1rem; }
+  .step-nav { flex-direction:column; gap:.6rem; }
+  .step-nav .btn { width:100%; }
+  .stats-grid { grid-template-columns:1fr 1fr; }
+  .waitlist-table-wrap { overflow-x:auto; }
+  .modal-box { margin:1rem; padding:1.25rem; border-radius:12px; }
+  .schedule-table-wrap { overflow-x:auto; }
+}
+
+@media(max-width:480px){
+  .hero-title { font-size:1.6rem; }
+  .stats-grid { grid-template-columns:1fr; }
+  .step-indicators { gap:.25rem; }
+  .step-dot { width:28px; height:28px; font-size:.75rem; }
+  .step-label { display:none; }
+  h2 { font-size:1.4rem; }
 }
 
 /* ── Bank modal loader overlay ────────────────────────────── */

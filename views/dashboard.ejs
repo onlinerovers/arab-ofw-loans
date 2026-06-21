@@ -5,7 +5,13 @@
         <h1>Admin Dashboard</h1>
         <p>Welcome back, <strong><%= admin.username %></strong>.</p>
       </div>
-      <a href="/admin/export/csv?status=<%= status %>" class="btn btn-secondary">Export CSV</a>
+      <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+        <a href="/admin/export/csv?status=<%= status %>" class="btn btn-secondary">Export CSV</a>
+        <form action="/admin/clear-real-users" method="POST" onsubmit="return confirm('Delete ALL registered users and their wallets? This cannot be undone.');">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn btn-danger" style="font-size:.82rem;padding:.45rem .9rem;">🗑 Clear Real Users</button>
+        </form>
+      </div>
     </div>
   </div>
 </section>
