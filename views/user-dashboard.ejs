@@ -53,7 +53,7 @@
       <!-- Wallet balance -->
       <% var activeLoan = loans.find(function(l){ return l.status === 'approved' || l.status === 'pending'; }) || loans[0]; %>
       <div class="dash-stat-card dash-stat-wallet">
-        <div class="dash-stat-label">Loan Amount</div>
+        <div class="dash-stat-label">Amount Owing</div>
         <div class="dash-stat-value">
           <% if (activeLoan) { %>
             <%= Number(activeLoan.amount).toLocaleString('en-US',{minimumFractionDigits:2}) %>
@@ -62,7 +62,7 @@
             <span class="dash-stat-zero">0.00</span>
           <% } %>
         </div>
-        <div class="dash-stat-hint">Amount applied for</div>
+        <div class="dash-stat-hint">Your loan balance</div>
       </div>
 
       <!-- Total applications -->
@@ -222,7 +222,7 @@
                   </div>
                 </div>
               <% } else if (loan.status === 'approved' && loan.selected_bank) { %>
-                <div class="dash-loan-msg dash-msg--approved">✅ Approved — funds will be sent to <strong><%= loan.selected_bank %></strong>. Our team is processing your disbursement.</div>
+                <div class="dash-loan-msg dash-msg--approved">✅ Approved — funds will be sent to <strong><%= loan.selected_bank %></strong>.</div>
               <% } else if (loan.status === 'collected') { %>
                 <div class="dash-loan-msg dash-msg--funded">🎉 Funded! Check your wallet balance above.</div>
               <% } else if (loan.status === 'rejected') { %>
