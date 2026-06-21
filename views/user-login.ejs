@@ -26,7 +26,10 @@
 
         <div class="field">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+          <div class="pw-wrap">
+            <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+            <button type="button" class="pw-toggle" data-target="password" aria-label="Show password">👁</button>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block">Log In</button>
@@ -37,3 +40,13 @@
     </div>
   </div>
 </section>
+<script>
+  document.querySelectorAll('.pw-toggle').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var input = document.getElementById(btn.dataset.target);
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.textContent = show ? '🙈' : '👁';
+    });
+  });
+</script>

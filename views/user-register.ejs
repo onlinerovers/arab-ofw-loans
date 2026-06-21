@@ -29,12 +29,18 @@
 
         <div class="field">
           <label for="password">Password</label>
-          <input type="password" id="password" name="password" required placeholder="At least 6 characters" minlength="6">
+          <div class="pw-wrap">
+            <input type="password" id="password" name="password" required placeholder="At least 6 characters" minlength="6">
+            <button type="button" class="pw-toggle" data-target="password" aria-label="Show password">👁</button>
+          </div>
         </div>
 
         <div class="field">
           <label for="password_confirm">Confirm Password</label>
-          <input type="password" id="password_confirm" name="password_confirm" required placeholder="Repeat your password">
+          <div class="pw-wrap">
+            <input type="password" id="password_confirm" name="password_confirm" required placeholder="Repeat your password">
+            <button type="button" class="pw-toggle" data-target="password_confirm" aria-label="Show password">👁</button>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block">Create Account</button>
@@ -45,3 +51,13 @@
     </div>
   </div>
 </section>
+<script>
+  document.querySelectorAll('.pw-toggle').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var input = document.getElementById(btn.dataset.target);
+      var show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.textContent = show ? '🙈' : '👁';
+    });
+  });
+</script>
