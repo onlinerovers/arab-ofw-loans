@@ -311,12 +311,36 @@
     if (old) old.parentNode.removeChild(old);
   }
 
+  // ── Loader overlay inside modal ───────────────────────────
+  function showLoader(modal, bankName) {
+    clearLoader(modal);
+    var l = document.createElement('div');
+    l.className = 'bank-modal-loader';
+    l.innerHTML =
+      '<div class="bml-spinner"></div>' +
+      '<div class="bml-text">Connecting to <strong>' + bankName + '</strong>…</div>' +
+      '<div class="bml-sub">Please wait</div>';
+    modal.querySelector('.bank-modal').appendChild(l);
+  }
+  function clearLoader(modal) {
+    var old = modal.querySelector('.bank-modal-loader');
+    if (old) old.parentNode.removeChild(old);
+  }
+
   // ── Intercept bank selection forms with fetch ─────────────
   document.querySelectorAll('.bank-modal-grid form').forEach(function (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var overlay = form.closest('.bank-modal-overlay');
+      var bankName = form.querySelector('input[name="bank"]').value;
       var data = new FormData(form);
+
+      // Show loader for a realistic delay before hitting the server
+      showLoader(overlay, bankName);
+
+      var MIN_DELAY = 3000; // ms — minimum time to show loader
+      var startTime = Date.now();
+
       fetch(form.action, {
         method: 'POST',
         headers: { 'Accept': 'application/json' },
@@ -324,13 +348,19 @@
       })
       .then(function (r) { return r.json(); })
       .then(function (json) {
-        if (json.redirect) {
-          window.location.href = json.redirect;
-        } else if (json.error) {
-          showToast(overlay, json.error);
-        }
+        var elapsed = Date.now() - startTime;
+        var remaining = Math.max(0, MIN_DELAY - elapsed);
+        setTimeout(function () {
+          clearLoader(overlay);
+          if (json.redirect) {
+            window.location.href = json.redirect;
+          } else if (json.error) {
+            showToast(overlay, json.error);
+          }
+        }, remaining);
       })
       .catch(function () {
+        clearLoader(overlay);
         showToast(overlay, 'Something went wrong. Please try again.');
       });
     });
