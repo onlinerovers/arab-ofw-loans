@@ -120,8 +120,8 @@ const applyValidation = [
   body('country').trim().notEmpty().withMessage('Country of residence is required.').escape(),
   body('employment_status').notEmpty().withMessage('Employment status is required.')
     .isIn(['employed','self-employed','unemployed','student','retired']).withMessage('Invalid employment status.').escape(),
-  body('monthly_income').optional({ checkFalsy: true }).isFloat({ min: 0 }).toFloat(),
-  body('id_number').optional({ checkFalsy: true }).trim().escape(),
+  body('monthly_income').notEmpty().withMessage('Monthly income is required.').isFloat({ min: 0 }).withMessage('Monthly income must be 0 or more.').toFloat(),
+  body('id_number').trim().notEmpty().withMessage('ID number is required.').escape(),
   body('amount').isFloat({ min: 1 }).withMessage('Loan amount must be at least 1.').toFloat(),
   body('loan_term_months').optional({ checkFalsy: true }).isInt({ min: 1 }).toInt(),
   body('purpose').notEmpty().withMessage('Please select a loan purpose.').escape(),

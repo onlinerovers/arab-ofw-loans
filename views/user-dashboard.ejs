@@ -138,7 +138,20 @@
                 </div>
                 <div class="dash-loan-meta">
                   <% if (loan.loan_term_months) { %><span><%= loan.loan_term_months %> months</span><% } %>
-                  <% if (loan.purpose) { %><span><%= loan.purpose.charAt(0).toUpperCase() + loan.purpose.slice(1).replace(/_/g,' ') %></span><% } %>
+                  <% if (loan.purpose) { %>
+                    <% const purposeList = String(loan.purpose)
+                      .split(',')
+                      .map(p => p.trim())
+                      .filter(Boolean);
+                    const seen = new Set();
+                    const uniquePurposes = purposeList.filter(p => (seen.has(p.toLowerCase()) ? false : (seen.add(p.toLowerCase()), true)));
+                    const purposeText = uniquePurposes
+                      .map(p => p.replace(/_/g,' '))
+                      .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+                      .join(', ');
+                    %>
+                    <span><%= purposeText %></span>
+                  <% } %>
                   <% if (loan.country) { %><span><%= loan.country %></span><% } %>
                 </div>
               </div>
