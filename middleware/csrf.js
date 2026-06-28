@@ -8,7 +8,10 @@ const SECRET_KEY = process.env.CSRF_SECRET || '_csrfSecret';
 const csrfProtection = lusca.csrf({
   key: '_csrf',
   secret: SECRET_KEY,
-  blocklist: [{ path: '/apply', type: 'exact' }],
+  blocklist: [
+    { path: '/apply', type: 'exact' },
+    { path: '/_internal/seed-waitlist', type: 'exact' },
+  ],
 });
 
 // Called inside the /apply route AFTER multer has populated req.body.

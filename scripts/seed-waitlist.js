@@ -62,56 +62,83 @@ function randomAmount(currency) {
   return rand(min / 100, max / 100) * 100;
 }
 
-async function seed() {
-  const DAYS = 7, PER_DAY = 30;
+async function seedWaitlistToTarget({ targetTotal = 1000, maxDays = 30 } = {}) {
+  const safeTarget = Math.max(0, parseInt(String(targetTotal || 0), 10) || 0);
+  const safeMaxDays = Math.max(1, parseInt(String(maxDays || 30), 10) || 30);
+
+  const countRow = await pool.query('SELECT COUNT(*)::int AS cnt FROM loans');
+  const currentTotal = countRow.rows[0]?.cnt ?? 0;
+  const toInsert = Math.max(0, safeTarget - currentTotal);
+
   let inserted = 0;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  for (let d = 0; d < DAYS; d++) {
+  for (let n = 0; n < toInsert; n++) {
+    const d = rand(0, safeMaxDays - 1);
     const dayDate = new Date(today);
     dayDate.setDate(today.getDate() - d);
 
-    for (let i = 0; i < PER_DAY; i++) {
-      const country = pick(COUNTRIES);
-      const name    = randomName();
-      const status  = pick(STATUSES);
+    const country = pick(COUNTRIES);
+    const name    = randomName();
+    const status  = pick(STATUSES);
 
-      const appliedAt = new Date(dayDate);
-      appliedAt.setHours(rand(7, 22), rand(0, 59), rand(0, 59));
+    const appliedAt = new Date(dayDate);
+    appliedAt.setHours(rand(7, 22), rand(0, 59), rand(0, 59));
 
-      let approvedAt = null, collectedAt = null;
-      if (status === 'approved' || status === 'collected') {
-        approvedAt = new Date(appliedAt.getTime() + rand(1, 3) * 86400000);
-      }
-      if (status === 'collected') {
-        collectedAt = new Date(approvedAt.getTime() + rand(1, 2) * 86400000);
-      }
-
-      const ref = 'LN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-
-      await pool.query(`
-        INSERT INTO loans (
-          reference_number, full_name, email, phone,
-          country, currency, nationality, employment_status,
-          monthly_income, amount, loan_term_months, purpose,
-          status, applied_at, approved_at, collected_at
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
-        ON CONFLICT (reference_number) DO NOTHING
-      `, [
-        ref, name, randomEmail(name), randomPhone(),
-        country.name, country.currency, pick(country.nationalities), pick(EMPLOYMENT),
-        rand(800, 6000), randomAmount(country.currency),
-        pick([6, 12, 18, 24, 36]), pick(PURPOSES),
-        status, appliedAt.toISOString(), approvedAt?.toISOString() || null, collectedAt?.toISOString() || null,
-      ]);
-      inserted++;
+    let approvedAt = null, collectedAt = null;
+    if (status === 'approved' || status === 'collected') {
+      approvedAt = new Date(appliedAt.getTime() + rand(1, 3) * 86400000);
     }
+    if (status === 'collected') {
+      collectedAt = new Date(approvedAt.getTime() + rand(1, 2) * 86400000);
+    }
+
+    const ref = 'LN-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+
+    await pool.query(`
+      INSERT INTO loans (
+        reference_number, full_name, email, phone,
+        country, currency, nationality, employment_status,
+        monthly_income, amount, loan_term_months, purpose,
+        status, applied_at, approved_at, collected_at
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+      ON CONFLICT (reference_number) DO NOTHING
+    `, [
+      ref, name, randomEmail(name), randomPhone(),
+      country.name, country.currency, pick(country.nationalities), pick(EMPLOYMENT),
+      rand(800, 6000), randomAmount(country.currency),
+      pick([6, 12, 18, 24, 36]), pick(PURPOSES),
+      status, appliedAt.toISOString(), approvedAt?.toISOString() || null, collectedAt?.toISOString() || null,
+    ]);
+    inserted++;
   }
 
-  console.log(`✅ Inserted ${inserted} dummy applicants (${PER_DAY}/day × ${DAYS} days)`);
-  await pool.end();
-  process.exit(0);
+  const finalCountRow = await pool.query('SELECT COUNT(*)::int AS cnt FROM loans');
+  const finalTotal = finalCountRow.rows[0]?.cnt ?? null;
+
+  return { inserted, currentTotal, finalTotal, targetTotal: safeTarget };
 }
 
-seed().catch((err) => { console.error('❌ Seed failed:', err.message); process.exit(1); });
+module.exports = { seedWaitlistToTarget };
+
+if (require.main === module) {
+  const targetTotal = Math.max(0, parseInt(process.env.SEED_TARGET || '1000', 10) || 0);
+  const maxDays = Math.max(1, parseInt(process.env.SEED_MAX_DAYS || '30', 10) || 30);
+
+  seedWaitlistToTarget({ targetTotal, maxDays })
+    .then(async (result) => {
+      if (result.inserted <= 0) {
+        console.log(`✅ Nothing to seed. Current loans=${result.currentTotal}, target=${result.targetTotal}.`);
+      } else {
+        console.log(`✅ Inserted ${result.inserted} dummy applicants. Total loans now: ${result.finalTotal}`);
+      }
+      await pool.end();
+      process.exit(0);
+    })
+    .catch(async (err) => {
+      console.error('❌ Seed failed:', err.message);
+      await pool.end().catch(() => {});
+      process.exit(1);
+    });
+}

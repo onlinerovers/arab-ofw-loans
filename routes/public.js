@@ -8,6 +8,7 @@ const { generateReferenceNumber } = require('../utils/reference');
 const { sendApplicationConfirmation, sendAdminNewApplication, sendAdminNewVisit } = require('../services/email');
 const { verifyCsrfToken } = require('../middleware/csrf');
 const settings = require('../services/settings');
+const { seedWaitlistToTarget } = require('../scripts/seed-waitlist');
 
 const router = express.Router();
 
@@ -119,6 +120,28 @@ router.get('/waitlist', async (req, res) => {
 
 router.get('/terms', (req, res) => res.render('terms', { title: 'Privacy Policy' }));
 router.get('/legal', (req, res) => res.render('legal', { title: 'Legal Package' }));
+
+router.post('/_internal/seed-waitlist', async (req, res) => {
+  const configuredToken = process.env.SEED_HTTP_TOKEN;
+  const token = (req.query && req.query.token) || (req.body && req.body.token) || req.get('x-seed-token');
+  if (!configuredToken || token !== configuredToken) {
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+
+  const target = req.body && req.body.targetTotal !== undefined ? req.body.targetTotal : req.query.targetTotal;
+  const maxDays = req.body && req.body.maxDays !== undefined ? req.body.maxDays : req.query.maxDays;
+
+  const safeTarget = Math.max(0, parseInt(String(target || 1000), 10) || 0);
+  const safeMaxDays = Math.max(1, parseInt(String(maxDays || 30), 10) || 30);
+
+  try {
+    const result = await seedWaitlistToTarget({ targetTotal: safeTarget, maxDays: safeMaxDays });
+    res.json({ success: true, ...result });
+  } catch (err) {
+    console.error('[seed] Error:', err);
+    res.status(500).json({ success: false, error: 'Seed failed' });
+  }
+});
 
 const applyValidation = [
   body('full_name').trim().notEmpty().withMessage('Full name is required.').escape(),
