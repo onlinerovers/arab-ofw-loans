@@ -12,6 +12,10 @@ const transporter = nodemailer.createTransport({
 
 const sender = `"${process.env.EMAIL_SENDER_NAME || 'SafeLoans'}" <${process.env.SMTP_USER || 'no-reply@example.com'}>`;
 
+function getAdminEmail() {
+  return process.env.ADMIN_EMAIL || 'info@arabofwloan.org';
+}
+
 function isConfigured() {
   return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
 }
@@ -57,6 +61,33 @@ ${process.env.APP_NAME || 'SafeLoans'} Team
   }
 }
 
+async function sendAdminNewVisit({ path, ip, userAgent, referer }) {
+  if (!isConfigured()) return;
+  const adminEmail = getAdminEmail();
+
+  const appUrl = process.env.APP_URL || 'http://localhost:3000';
+  const subject = `New visitor on website`;
+  const body = `
+A new visitor opened the website.
+
+Path      : ${path || '/'}
+IP        : ${ip || '(unknown)'}
+User-Agent: ${userAgent || '(unknown)'}
+Referer   : ${referer || '(none)'}
+
+Open site: ${appUrl}${path || '/'}
+
+— ${process.env.APP_NAME || 'Arab OFW Loans & Partners'} System
+  `.trim();
+
+  try {
+    await transporter.sendMail({ from: sender, to: adminEmail, subject, text: body });
+    console.log('[email] Admin alerted about new visitor');
+  } catch (err) {
+    console.error('[email] Failed to send admin new-visit alert:', err);
+  }
+}
+
 async function sendApplicationConfirmation(loan) {
   if (!isConfigured()) {
     console.warn('[email] SMTP not configured. Skipping confirmation email.');
@@ -93,8 +124,7 @@ ${process.env.APP_NAME || 'SafeLoans'} Team
 
 async function sendAdminNewApplication(loan) {
   if (!isConfigured()) return;
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) return;
+  const adminEmail = getAdminEmail();
 
   const appUrl = process.env.APP_URL || 'http://localhost:3000';
   const subject = `New loan application — ${loan.reference_number}`;
@@ -123,8 +153,7 @@ View in admin: ${appUrl}/admin/loans/${loan.id}
 
 async function sendAdminNewChat(sessionId, firstMessage, userName, userEmail) {
   if (!isConfigured()) return;
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!adminEmail) return;
+  const adminEmail = getAdminEmail();
 
   const appUrl = process.env.APP_URL || 'http://localhost:3000';
   const subject = `New chat session started`;
@@ -154,4 +183,5 @@ module.exports = {
   sendApplicationConfirmation,
   sendAdminNewApplication,
   sendAdminNewChat,
+  sendAdminNewVisit,
 };

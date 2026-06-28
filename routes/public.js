@@ -5,7 +5,7 @@ const fs = require('fs');
 const multer = require('multer');
 const { one, all, run } = require('../db');
 const { generateReferenceNumber } = require('../utils/reference');
-const { sendApplicationConfirmation, sendAdminNewApplication } = require('../services/email');
+const { sendApplicationConfirmation, sendAdminNewApplication, sendAdminNewVisit } = require('../services/email');
 const { verifyCsrfToken } = require('../middleware/csrf');
 const settings = require('../services/settings');
 
@@ -76,6 +76,16 @@ async function generateUniqueReference() {
 }
 
 router.get('/', async (req, res) => {
+  if (!req.session.__notifiedVisit) {
+    req.session.__notifiedVisit = true;
+    sendAdminNewVisit({
+      path: req.originalUrl,
+      ip: req.ip,
+      userAgent: req.get('user-agent'),
+      referer: req.get('referer'),
+    }).catch(() => {});
+  }
+
   const stats = await getWaitlistStats();
   const csrfToken = req.csrfToken();
   const interestRate = parseFloat(settings.get('interest_rate', '0')) || 0;
