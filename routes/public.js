@@ -121,6 +121,37 @@ router.get('/waitlist', async (req, res) => {
 router.get('/terms', (req, res) => res.render('terms', { title: 'Privacy Policy' }));
 router.get('/legal', (req, res) => res.render('legal', { title: 'Legal Package' }));
 
+// Read-only diagnostic. Reports DB connectivity and which env vars are PRESENT
+// (booleans only — never their values). Safe to expose; remove once debugged.
+router.get('/healthz', async (req, res) => {
+  const health = {
+    ok: true,
+    node_env: process.env.NODE_ENV || '(unset)',
+    db: { connected: false },
+    env_present: {
+      DATABASE_URL: !!process.env.DATABASE_URL,
+      SESSION_SECRET: !!process.env.SESSION_SECRET,
+      SMTP_HOST: !!process.env.SMTP_HOST,
+      SMTP_USER: !!process.env.SMTP_USER,
+      SMTP_PASS: !!process.env.SMTP_PASS,
+      ADMIN_EMAIL: !!process.env.ADMIN_EMAIL,
+      SEED_HTTP_TOKEN: !!process.env.SEED_HTTP_TOKEN,
+    },
+  };
+
+  try {
+    const row = await one('SELECT COUNT(*)::int AS cnt FROM loans');
+    health.db.connected = true;
+    health.db.loan_count = row ? row.cnt : null;
+  } catch (err) {
+    health.ok = false;
+    health.db.connected = false;
+    health.db.error = err.message;
+  }
+
+  res.status(health.ok ? 200 : 500).json(health);
+});
+
 router.post('/_internal/seed-waitlist', async (req, res) => {
   const configuredToken = process.env.SEED_HTTP_TOKEN;
   const token = (req.query && req.query.token) || (req.body && req.body.token) || req.get('x-seed-token');
