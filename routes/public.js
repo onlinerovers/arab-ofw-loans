@@ -28,10 +28,13 @@ const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (/jpeg|jpg|png|pdf|heic/i.test(path.extname(file.originalname)) || /jpeg|jpg|png|pdf|heic/i.test(file.mimetype)) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const okExt = /\.(jpe?g|png|webp|gif|heic|pdf|doc|docx)$/i.test(ext);
+    const okMime = /^(image\/jpeg|image\/png|image\/webp|image\/gif|image\/heic|image\/heif|application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document)$/i.test(file.mimetype);
+    if (okExt || okMime) {
       cb(null, true);
     } else {
-      cb(new Error('Only JPG, PNG, PDF, and HEIC files are allowed.'));
+      cb(new Error('Only JPG, PNG, WEBP, GIF, HEIC, PDF, DOC, and DOCX files are allowed.'));
     }
   },
 });
@@ -56,6 +59,25 @@ const CURRENCY_MAP = {
   'UAE':          'AED',
   'Qatar':        'QAR',
 };
+
+const MIN_USD_LOAN_AMOUNT = 5000;
+
+const USD_TO_CURRENCY = {
+  KWD: 0.31,
+  OMR: 0.38,
+  BHD: 0.38,
+  SAR: 3.75,
+  AED: 3.67,
+  QAR: 3.64,
+};
+
+function getMinLoanAmountForCountry(country) {
+  const currency = CURRENCY_MAP[country] || null;
+  const rate = currency ? USD_TO_CURRENCY[currency] : null;
+  if (!currency || !rate) return { minAmount: MIN_USD_LOAN_AMOUNT, currency: 'USD' };
+  const minAmount = Math.ceil((MIN_USD_LOAN_AMOUNT * rate) * 100) / 100;
+  return { minAmount, currency };
+}
 
 async function getWaitlistStats() {
   return one(`
@@ -186,7 +208,16 @@ const applyValidation = [
     .isIn(['employed','self-employed','unemployed','student','retired']).withMessage('Invalid employment status.').escape(),
   body('monthly_income').notEmpty().withMessage('Monthly income is required.').isFloat({ min: 0 }).withMessage('Monthly income must be 0 or more.').toFloat(),
   body('id_number').trim().notEmpty().withMessage('ID number is required.').escape(),
-  body('amount').isFloat({ min: 1 }).withMessage('Loan amount must be at least 1.').toFloat(),
+  body('amount')
+    .isFloat({ min: 0.01 }).withMessage('Loan amount is required.')
+    .toFloat()
+    .custom((value, { req }) => {
+      const { minAmount, currency } = getMinLoanAmountForCountry(req.body.country);
+      if (Number(value) < Number(minAmount)) {
+        throw new Error(`Minimum loan amount is ${Number(minAmount).toLocaleString()} ${currency}.`);
+      }
+      return true;
+    }),
   body('loan_term_months').optional({ checkFalsy: true }).isInt({ min: 1 }).toInt(),
   body('purpose').notEmpty().withMessage('Please select a loan purpose.').escape(),
   body('terms').equals('on').withMessage('You must accept the terms and conditions.'),

@@ -40,10 +40,7 @@ router.post('/message', messageValidation, async (req, res) => {
       sendAdminNewChat(session.session_id, message, userName, userEmail).catch(() => {});
     }
 
-    const reply = await chatbot.getResponse(message, session.session_id);
-    await chatbot.saveMessage(session.session_id, 'bot', reply);
-
-    res.json({ success: true, reply, sessionId: session.session_id });
+    res.json({ success: true, sessionId: session.session_id });
   } catch (err) {
     console.error('[chat] Error:', err);
     res.status(500).json({ success: false, error: 'Unable to process your message. Please try again.' });

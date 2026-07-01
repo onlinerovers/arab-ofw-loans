@@ -33,26 +33,22 @@
     messages.scrollTop = messages.scrollHeight;
   }
 
-  function setTyping(show) {
-    let typing = document.getElementById('chat-typing');
-    if (show) {
-      if (!typing) {
-        typing = document.createElement('div');
-        typing.id = 'chat-typing';
-        typing.className = 'chat-message chat-message--bot chat-typing';
-        typing.textContent = 'Typing...';
-        messages.appendChild(typing);
-        messages.scrollTop = messages.scrollHeight;
-      }
-    } else if (typing) {
-      typing.remove();
+  function ensureIdentity() {
+    if (!session.name) {
+      const n = window.prompt('Your name (for our support team):') || '';
+      session.name = n.trim();
     }
+    if (!session.email) {
+      const e = window.prompt('Your email (so we can reply):') || '';
+      session.email = e.trim();
+    }
+    saveSession();
   }
 
   async function sendMessage(text) {
+    ensureIdentity();
     appendMessage('user', text);
     input.value = '';
-    setTyping(true);
 
     try {
       const response = await fetch('/api/chat/message', {
@@ -70,19 +66,16 @@
       });
 
       const data = await response.json();
-      setTyping(false);
 
       if (data.success) {
         if (data.sessionId && !session.id) {
           session.id = data.sessionId;
           saveSession();
         }
-        appendMessage('bot', data.reply);
       } else {
         appendMessage('bot', data.error || 'Sorry, something went wrong.');
       }
     } catch (err) {
-      setTyping(false);
       appendMessage('bot', 'Sorry, I could not connect. Please try again.');
     }
   }
@@ -107,8 +100,7 @@
     sendMessage(text);
   });
 
-  // Initial greeting if empty
   if (messages.children.length === 0) {
-    appendMessage('bot', 'Hi there! 👋 How can I help you with SafeLoans today?');
+    appendMessage('bot', 'Send your question here. Our team will review it and respond by email.');
   }
 })();

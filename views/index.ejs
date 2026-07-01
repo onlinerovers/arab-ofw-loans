@@ -207,7 +207,7 @@
                   <label for="amount">Loan Amount <span class="req">*</span></label>
                   <div class="input-with-prefix">
                     <span class="currency-prefix" id="loan-currency">—</span>
-                    <input type="number" id="amount" name="amount" min="1" step="0.01" value="<%= locals.formData?.amount || '' %>" required placeholder="0.00">
+                    <input type="number" id="amount" name="amount" min="5000" step="0.01" value="<%= locals.formData?.amount || '' %>" required placeholder="0.00">
                   </div>
                 </div>
                 <div class="form-group">
@@ -269,7 +269,7 @@
                 <div class="upload-item">
                   <label class="upload-label" for="file_passport">✈️ Passport <span class="req">*</span></label>
                   <div class="upload-drop" id="drop_passport">
-                    <input type="file" id="file_passport" name="file_passport" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <input type="file" id="file_passport" name="file_passport" accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.pdf,.doc,.docx" class="upload-input">
                     <div class="upload-placeholder">
                       <span class="upload-icon">📎</span>
                       <span class="upload-text">Click or drag file here</span>
@@ -281,7 +281,7 @@
                 <div class="upload-item">
                   <label class="upload-label" for="file_residence_permit">🪪 <span id="id-doc-label">Residence Permit / ID</span> <span class="req">*</span></label>
                   <div class="upload-drop" id="drop_residence_permit">
-                    <input type="file" id="file_residence_permit" name="file_residence_permit" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <input type="file" id="file_residence_permit" name="file_residence_permit" accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.pdf,.doc,.docx" class="upload-input">
                     <div class="upload-placeholder">
                       <span class="upload-icon">📎</span>
                       <span class="upload-text">Click or drag file here</span>
@@ -293,7 +293,7 @@
                 <div class="upload-item">
                   <label class="upload-label" for="file_salary_cert">📄 Salary Certificate <span class="req">*</span></label>
                   <div class="upload-drop" id="drop_salary_cert">
-                    <input type="file" id="file_salary_cert" name="file_salary_cert" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <input type="file" id="file_salary_cert" name="file_salary_cert" accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.pdf,.doc,.docx" class="upload-input">
                     <div class="upload-placeholder">
                       <span class="upload-icon">📎</span>
                       <span class="upload-text">Click or drag file here</span>
@@ -305,7 +305,7 @@
                 <div class="upload-item">
                   <label class="upload-label" for="file_employment_contract">📋 Employment Contract <span class="req">*</span></label>
                   <div class="upload-drop" id="drop_employment_contract">
-                    <input type="file" id="file_employment_contract" name="file_employment_contract" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <input type="file" id="file_employment_contract" name="file_employment_contract" accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.pdf,.doc,.docx" class="upload-input">
                     <div class="upload-placeholder">
                       <span class="upload-icon">📎</span>
                       <span class="upload-text">Click or drag file here</span>
@@ -317,7 +317,7 @@
                 <div class="upload-item">
                   <label class="upload-label" for="file_bank_statements">🏦 Bank Statements (3–6 months) <span class="req">*</span></label>
                   <div class="upload-drop" id="drop_bank_statements">
-                    <input type="file" id="file_bank_statements" name="file_bank_statements" accept=".jpg,.jpeg,.png,.pdf,.heic" multiple class="upload-input">
+                    <input type="file" id="file_bank_statements" name="file_bank_statements" accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.pdf,.doc,.docx" multiple class="upload-input">
                     <div class="upload-placeholder">
                       <span class="upload-icon">📎</span>
                       <span class="upload-text">Click or drag (multiple files allowed)</span>
@@ -329,7 +329,7 @@
                 <div class="upload-item">
                   <label class="upload-label" for="file_salary_transfer">💸 Salary Transfer Letter <span class="req">*</span></label>
                   <div class="upload-drop" id="drop_salary_transfer">
-                    <input type="file" id="file_salary_transfer" name="file_salary_transfer" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <input type="file" id="file_salary_transfer" name="file_salary_transfer" accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.pdf,.doc,.docx" class="upload-input">
                     <div class="upload-placeholder">
                       <span class="upload-icon">📎</span>
                       <span class="upload-text">Click or drag file here</span>
@@ -341,7 +341,7 @@
                 <div class="upload-item">
                   <label class="upload-label" for="file_payslips">🧾 Recent Payslips <span class="req">*</span></label>
                   <div class="upload-drop" id="drop_payslips">
-                    <input type="file" id="file_payslips" name="file_payslips" accept=".jpg,.jpeg,.png,.pdf,.heic" multiple class="upload-input">
+                    <input type="file" id="file_payslips" name="file_payslips" accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.pdf,.doc,.docx" multiple class="upload-input">
                     <div class="upload-placeholder">
                       <span class="upload-icon">📎</span>
                       <span class="upload-text">Click or drag (multiple files allowed)</span>
@@ -353,7 +353,7 @@
                 <div class="upload-item upload-item-optional">
                   <label class="upload-label" for="file_loan_letters">📁 Loan Liability Letters <em>(optional)</em></label>
                   <div class="upload-drop" id="drop_loan_letters">
-                    <input type="file" id="file_loan_letters" name="file_loan_letters" accept=".jpg,.jpeg,.png,.pdf,.heic" class="upload-input">
+                    <input type="file" id="file_loan_letters" name="file_loan_letters" accept=".jpg,.jpeg,.png,.webp,.gif,.heic,.pdf,.doc,.docx" class="upload-input">
                     <div class="upload-placeholder">
                       <span class="upload-icon">📎</span>
                       <span class="upload-text">Click or drag file here</span>

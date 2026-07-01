@@ -16,6 +16,17 @@
   var idLabel        = document.getElementById('id-label');
   var idDocLabel     = document.getElementById('id-doc-label');
   var idInput        = document.getElementById('id_number');
+  var amountInput    = document.getElementById('amount');
+
+  var USD_MIN = 5000;
+  var usdToCurrency = {
+    KWD: 0.31,
+    OMR: 0.38,
+    BHD: 0.38,
+    SAR: 3.75,
+    AED: 3.67,
+    QAR: 3.64,
+  };
 
   function updateCountryFields() {
     var val  = countrySelect ? countrySelect.value : '';
@@ -25,6 +36,18 @@
     if (idLabel)        idLabel.textContent        = info.idLabel;
     if (idDocLabel)     idDocLabel.textContent     = info.idLabel;
     if (idInput)        idInput.placeholder        = info.idLabel ? 'Enter your ' + info.idLabel + ' number' : 'Enter ID number';
+
+    if (amountInput) {
+      var cur = info.currency || '';
+      var rate = cur && usdToCurrency[cur] ? usdToCurrency[cur] : null;
+      var minAmount = rate ? Math.ceil((USD_MIN * rate) * 100) / 100 : USD_MIN;
+      amountInput.min = String(minAmount);
+      if (amountInput.value && Number(amountInput.value) < Number(minAmount)) {
+        amountInput.setCustomValidity('Minimum loan amount is ' + minAmount.toLocaleString() + ' ' + (rate ? cur : 'USD') + '.');
+      } else {
+        amountInput.setCustomValidity('');
+      }
+    }
   }
 
   if (countrySelect) {
